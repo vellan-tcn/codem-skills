@@ -1,0 +1,55 @@
+/**
+ * report-kit 设计令牌（Design Tokens）
+ * =====================================
+ * 复用说明（REUSE-GUIDE 核心入口）：
+ *   其他项目复用整套框架时，视觉风格统一只需改本文件的颜色值，
+ *   页面/组件全部引用语义令牌（text-rk-ink、border-rk-line 等），不写裸 hex。
+ *
+ * 令牌语义：
+ *   rk-ink          主文字（表头、数值、标题）
+ *   rk-ink-soft     次级文字（标签、说明）
+ *   rk-ink-faint    弱化文字（占位、时间戳小字）
+ *   rk-line         分隔线 / 控件边框
+ *   rk-bg-soft      浅灰背景（卡片内衬）
+ *   rk-bg-faint     斑马纹 / 更浅背景
+ *   rk-bg-brand-soft 品牌浅底（选中态、高亮行）
+ *   rk-table-head   表格深色表头 / 深色横幅渐变起点
+ *   rk-gradient-deep 深色横幅渐变终点
+ *   rk-brand        品牌主蓝（主按钮、查询按钮、选中）
+ *   rk-blue         图表蓝 / 次级强调
+ *   rk-teal         能效绿（渐变图标、正向指标）
+ *   rk-success      成功 / 达标
+ *   rk-warn         警告 / 试机标注
+ *   rk-danger       错误 / 负向指标
+ *
+ * Tailwind v4 @theme：--color-rk-* 自动生成 text-rk-* / bg-rk-* / border-rk-* 等 utility。
+ * 图表色板请同步维护 theme/charts.ts（与令牌联动）。
+ */
+@theme {
+  /* 文字 */
+  --color-rk-ink: #15263B;
+  --color-rk-ink-soft: #64748B;
+  --color-rk-ink-faint: #9AA5B5;
+
+  /* 线条与背景 */
+  --color-rk-line: #E6EAF1;
+  --color-rk-bg-soft: #F2F5F9;
+  --color-rk-bg-faint: #F8FAFC;
+  --color-rk-bg-brand-soft: #E9F1FD;
+  --color-rk-bg-mist: #EDF1F4;
+  --color-rk-bg-mist-2: #E7EBF2;
+
+  /* 深色区（表头 / 横幅渐变） */
+  --color-rk-table-head: #0B2440;
+  --color-rk-gradient-deep: #123353;
+  --color-rk-gradient-ink: #081B31;
+  --color-rk-navy: #102D4A;
+
+  /* 品牌与状态色 */
+  --color-rk-brand: #1F6FEB;
+  --color-rk-blue: #2F7FE0;
+  --color-rk-teal: #12B886;
+  --color-rk-success: #0E9F6E;
+  --color-rk-warn: #F59F0B;
+  --color-rk-danger: #DC2626;
+}

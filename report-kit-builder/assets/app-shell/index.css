@@ -1,0 +1,74 @@
+@import '@lark-apaas/client-toolkit/lib/index.css';
+@import "tw-animate-css";
+@import "./tailwind-theme.css";
+@import "./typography.css";
+@import "./theme/tokens.css";
+
+@config "../../tailwind.config.ts";
+
+/* 隐藏妙搭平台注入的右下角「妙搭生成」悬浮入口（对外展示时不应出现） */
+[data-custom-element^="miaoda-watermark"] {
+  display: none !important;
+}
+
+body {
+  background-color: #F2F5F9;
+  font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft Yahei', sans-serif;
+  font-size: 14px;
+  color: #15263B;
+  font-variant-numeric: tabular-nums;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  overflow-wrap: break-word;
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+
+/* ===== 打印报告页（/print-report）A4 单页适配 ===== */
+@media print {
+  /* 强制浏览器打印时保留背景色（页眉深蓝、表格底色、图表配色），无需用户勾选「背景图形」 */
+  *,
+  *::before,
+  *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+  /* 工具条不进 PDF */
+  .print-toolbar {
+    display: none !important;
+  }
+  html,
+  body {
+    background: #fff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  /* A4 版面整体居中：1240×1754px 按 0.6 缩放 ≈ 794×1052px，单页铺满且水平垂直居中 */
+  .print-stage {
+    background: #fff !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  .a4 {
+    zoom: 0.6;
+    box-shadow: none !important;
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+  }
+}

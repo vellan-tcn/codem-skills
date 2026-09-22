@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "skills": {
+    "brainstorming": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/brainstorming/SKILL.md",
+      "computedHash": "0eb8e9ba100985eb4da20c46807268cafd72ec1c4ea58132edf9be6c469867fe"
+    },
+    "qe-visual-testing-advanced": {
+      "source": "proffesor-for-testing/agentic-qe",
+      "sourceType": "github",
+      "skillPath": ".kiro/skills/qe-visual-testing-advanced/SKILL.md",
+      "computedHash": "0b067dc31196bee84bc028877831622797f3f7322dd3533851786d10e8316876"
+    },
+    "writing-plans": {
+      "source": "obra/superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/writing-plans/SKILL.md",
+      "computedHash": "27c75044e444a4fc68798c3f799dc23eaff3a6bfabff32e6ad75bb20f881c094"
+    }
+  }
+}
