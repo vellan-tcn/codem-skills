@@ -1,7 +1,7 @@
 ---
 name: report-kit-builder
 description: 报告/报表/看板类项目专用 UI 快速搭建套件：report-kit 报表组件 + theme 设计令牌（CSS/图表统一风格），自带架构文档与数据链路脚本骨架。触发场景（任一即可）：用户要做运营报告、数据报表、能耗/看板、大屏、报表查询页、月度报表、趋势图表；要统一 UI 风格/主题/容器/CSS；提到复用之前那套报表框架、看板框架、用之前项目的 UI、report-kit、示例食品厂那套风格。做任何"报告类页面"前先检查本 skill。
-version: 1.4.27
+version: 1.4.28
 ---
 
 # report-kit-builder：报表套件快速搭建（自包含）
@@ -129,6 +129,7 @@ skill 仓库（`~/.codem/skills/`）必然在会话工作空间之外；把 skil
 **破坏性变更标记（2026-09-21 用户定稿，源自业界 semver 实践）**：技能改动若会导致**旧项目拿到新版后行为变化/配置失效/用法不兼容**（如组件 API 改签名、目录规范调整、脚本入参变更、SKILL.md 规则语义反转），changelog 条目必须加 `BREAKING:` 前缀并写明迁移方法；纯新增/修复不加。有 BREAKING 的版本发布后在群里告知用户「受影响项目清单 + 迁移动作」，未告知不得算发布完成。目的：技能是全项目即时生效的共享层，标记破坏性变更 = 给旧项目一个择机迁移的机会，避免坏改动瞬间打崩所有项目。
 
 
+- **1.4.28（2026-09-22）** 专家全盘评审后修复阻断项：① COLLAB_PROTOCOL 六轮增量补录 changelog（合并判据：相同内容不合并保持原样，仅实质区别/更优方案才合；PR 质量四条：小 PR>400 行拆分/自查后再提/UI 改动必附前后截图无截图不评审/Draft 预对齐；评审强化：当轮必须出意见不许挂起/分级评审 T1T2T3/分歧升级用户裁决留档/删除即证据链；同文件互斥后到先 rebase；agent 硬限每 PR 评论≤5 条；差异化回流闭环：skill 自我迭代后必须提示用户是否提交 GitHub 分支，不跳过提示不擅自推送）；② 修复章节编号零~八连续；③ 勘误技能库描述（public monorepo、sync 后自动建分支提 PR，非私有/自动 push）。
 - **1.4.27（2026-09-22）** 多机协作更新流程落地（业界调研：简化版 GitHub Flow + main 分支保护）：新增仓库根 COLLAB_PROTOCOL.md + PR 模板，全员（含维护机）改 skill 一律分支→PR→AI 五维评审（真源性/一致性/回退风险/完整性/可复用性）→用户在任意 agent 对话授权合并（gh pr merge --squash）；main 设分支保护禁直推/强推、必须 PR（approvals=0，AI 评审以 comment 留档，用户授权即合并开关）且 enforce_admins 含管理员；仓库已转 public（全量脱敏+sync 门禁防客户信息回流）；sync_skill.sh 由直推 main 改为自动建分支提 PR；合并后各机版本硬校验照旧。
 - **1.4.26（2026-09-22）** 修复「skill 文件转飞书云文档报无法读取」跨工作空间问题：新增「skill 资产交付规则」——skill 仓库必然在工作空间外，交付 skill 内文件必须先 cp 进当前工作空间（cwd 相对路径）再作 file artifact，或直接 drive +import 成在线文档以 url 交付；路径全部动态推导，换电脑/换工作空间自适应。
 - **1.4.25（2026-09-22）** 用户问责「到处漏、要全面」后全景审计落地：新增 assets/FEATURE_MATRIX.md 功能面五维矩阵核对表（端/页面区块/交互状态/生命周期/环境逐格），补齐此前只存在代码、规则从未点名的风险项：ReportTopbar 车间切换与打印按钮（含移动端只显图标）、Report 页 section 级清单（KPI/趋势/冷热量/月度表/分析/说明/项目信息）、RawDataErrorBoundary 错误边界、loading 态、车间切换三处联动（Topbar+路由 key+URL query 回写）、分页/变量多选/筛选器；并显式标注真源未实现项（自动轮询/F5 状态恢复/键盘导航/登录页）禁止臆造。SKILL.md 主文只留入口规则，明细入矩阵文件，缓解 SKILL.md 过长问题。
@@ -331,7 +332,7 @@ push 前导出 LARKSUITE_CLI_* UAT 环境变量，否则报 "not configured"。�
 
 
 **两条线，均自动管理，无需用户提醒：**
-1. **技能库（全局一个）**：`https://github.com/vellan-tcn/codem-skills`（私有 monorepo）。本地 `~/.codem/skills` 即仓库（git 根在 skills 目录，每技能一个子目录）。sync_skill.sh 同步后自动 commit + push。
+1. **技能库（全局一个）**：`https://github.com/vellan-tcn/codem-skills`（public monorepo，全量脱敏）。本地 `~/.codem/skills` 即仓库（git 根在 skills 目录，每技能一个子目录）。sync_skill.sh 同步后自动建分支提 PR（走 COLLAB_PROTOCOL 协作流程，不再直推 main）。
 2. **项目 app 库（每项目一个）**：cop-app → `https://github.com/vellan-tcn/<项目源码镜像仓库>`（remote 名 `github`，分支 sprint/default，与妙搭远端 `origin` 并存）。deploy.sh 部署时自动 push 镜像。
 
 **新项目接入**：见「标准流程第 0 步」（已列为硬性步骤，不照做即违规）。
