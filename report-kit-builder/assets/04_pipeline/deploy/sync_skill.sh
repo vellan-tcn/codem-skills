@@ -55,25 +55,65 @@ cp "$R/04_pipeline/deploy/"*.sh "$K/assets/04_pipeline/deploy/" 2>/dev/null || t
 # 排除项目专属/含本机会话路径的脚本，不进 skill（换机不可用，留在项目仓库）
 rm -f "$K/assets/04_pipeline/merge/"mfg_*.py "$K/assets/04_pipeline/sync/"mfg_*.py "$K/assets/04_pipeline/deploy/release_only.sh"
 
+# 2i. 脱敏（2026-09-22 仓库转 public 红线：客户信息以示例值替换，禁止进入公开仓库）
+python -X utf8 - "$K" <<'PYEOF'
+import os, io, sys
+K = sys.argv[1]
+repl = [
+    ('麻辣王子', '示例食品厂'),
+    ('malawangzi-cop-app', '<项目源码镜像仓库>'),
+    ('https://tl-group.feishu.cn/docx/RIRYd2TdjoE2g1x7FaHcwE7InAe', '（内部操作手册链接，接入时向维护者索取）'),
+    ('tl-group.feishuapp.com/app/app_17ebtg2mam8', 'https://<your-domain>.feishuapp.com/app/<app_id>'),
+    ('tl-group.feishuapp.com', '<your-domain>.feishuapp.com'),
+    ('tl-group.feishu.cn/docx/', '<内部文档链接>/docx/'),
+    ("workshop === 'mfg' ? 5.4 : 5.3", "workshop === 'mfg' ? 5.2 : 5.0"),
+    ('5.4 : 5.3', '5.2 : 5.0'),
+]
+for root, dirs, files in os.walk(K):
+    if '.git' in root: continue
+    for fn in files:
+        p = os.path.join(root, fn)
+        try:
+            with io.open(p, encoding='utf-8') as f: s = f.read()
+        except Exception: continue
+        t = s
+        for a, b in repl: t = t.replace(a, b)
+        if t != s:
+            with io.open(p, 'w', encoding='utf-8', newline='\n') as f: f.write(t)
+            print('SANITIZED', p)
+PYEOF
+# 脱敏门禁：仍命中敏感词则中止（防映射表漏项把客户信息带进公开仓库）
+if grep -rniE "麻辣王子|malawangzi|tl-group|13914470091|tekene99|m0-tph" "$K" -q --include="*" 2>/dev/null; then
+  echo "SANITIZE-GATE FAILED：skill 仓库仍含敏感词（客户名/内部域名/凭证），禁止提交，请先补替换映射"
+  exit 1
+fi
+
 echo "SYNCED $(date '+%F %T')"
 du -sh "$K"
 
-# 3. git 自动留痕 + 推 GitHub（2026-09-21：技能 monorepo 化，git 根在 ~/.codem/skills）
+# 3. git 自动留痕 + 提 PR 走协作协议（2026-09-22 用户定稿：全员走 PR，禁止直推 main；
+#    协议见仓库根 COLLAB_PROTOCOL.md：AI 五维评审 → 用户在任意 agent 对话授权合并）
 S="$HOME/.codem/skills"
 cd "$S"
 if git status --porcelain | grep -q .; then
+  BR="feature/sync-$(date '+%Y%m%d-%H%M%S')"
+  git checkout -qb "$BR"
   git add -A
   git commit -qm "sync: from 05_app $(cd "$R/05_app" && git rev-parse --short HEAD) at $(date '+%F %T')"
-  echo "GIT-COMMIT $(git rev-parse --short HEAD)"
+  echo "GIT-COMMIT $(git rev-parse --short HEAD)@$BR"
+  # 4. 推分支 + 建 PR（网络抖动重试一次；合并由用户授权 agent 执行 gh pr merge --squash --delete-branch）
+  if ! git push -q -u origin "$BR" 2>/dev/null; then
+    sleep 5
+    git push -q -u origin "$BR" || { echo "GITHUB-PUSH FAILED(网络，分支 $BR 留在本地，下次重推)"; exit 0; }
+  fi
+  PRURL="$(gh pr create --base main --head "$BR" \
+    --title "sync: from 05_app $(cd "$R/05_app" && git rev-parse --short HEAD)" \
+    --body "自动同步：05_app 真源 → skill 资产（sync_skill.sh 生成）。改动范围=本 PR 文件清单；验证=sync 输出 SYNCED + VERSION 已更新；回滚=revert 本 PR。agent 评审请按 COLLAB_PROTOCOL.md 第三节执行。" 2>/dev/null || true)"
+  if [ -n "$PRURL" ]; then
+    echo "PR-CREATED $PRURL"
+  else
+    echo "PR-CREATE FAILED(分支 $BR 已推远端，请手动 gh pr create)"
+  fi
 else
   echo "GIT-NOCHANGE"
-fi
-# 4. 推 GitHub（远程仓库 vellan-tcn/codem-skills；网络抖动重试一次）
-if git diff --quiet HEAD origin/main 2>/dev/null; then :; else
-  if ! git push -q origin main 2>/dev/null; then
-    sleep 5
-    git push -q origin main && echo "GITHUB-PUSH ok(retry)" || echo "GITHUB-PUSH FAILED(网络，下次 sync 会补推)"
-  else
-    echo "GITHUB-PUSH ok"
-  fi
 fi

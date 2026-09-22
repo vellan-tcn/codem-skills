@@ -45,8 +45,9 @@ PR 建立后（或用户把 PR 链接发进任意对话后），对话中的 age
 ## 五、main 分支保护（GitHub 侧，已配置）
 
 - 禁止直接 push、禁止强推、禁止删除 main
-- 必须走 PR 且至少 1 个 approving review（AI 评审即 approve：`gh pr review --approve`）
+- 必须走 PR；**required approvals = 0**（GitHub 不允许同账号 approve 自己的 PR，故 AI 评审意见以 PR comment 形式留档，**用户的合并授权就是唯一的合并开关**）
 - **enforce_admins：true**——维护机管理员身份也不例外（全员走 PR，用户 2026-09-22 拍板）
+- 仓库已转 **public**（2026-09-22 用户拍板：全量脱敏后公开，任何机器 clone/pull 零凭证）；**脱敏门禁**：sync_skill.sh 提交前自动扫描敏感词（客户名/内部域名/镜像仓库名/旧基线值），命中即中止并提示替换，严禁客户信息进入公开仓库
 
 ## 六、版本纪律（不变）
 
