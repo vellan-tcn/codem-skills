@@ -87,6 +87,8 @@ skill 根目录：`$HOME/.codem/skills/report-kit-builder/`（CodeM 标准位置
 
 本 skill 仓库（codem-skills）的任何更新（含维护机、含创建者）一律：**切分支 → 提 PR → AI 五维评审 → 用户在任意 agent 对话里授权合并**，禁止直推 main。合并用 squash，各机开工前仍执行版本硬校验。完整流程、PR 模板、评审五维、分布式授权细则：见仓库根 `COLLAB_PROTOCOL.md`（与 SKILL.md 同目录上级）。
 
+**业务源码前置红线（2026-09-22 用户定稿：没有源码不行）**：复刻差异化阶段凡涉及对方项目的业务 UI / 交互，必须先拿到真实源码（页面结构+组件代码+交互逻辑三类缺一不可；途径：对方源码仓 / `lark-cli apps +init` 拉取 / 对方提供文件）。明令禁止凭截图/口头描述/记忆印象想象重写业务 UI；拿不到时只交付 skill 基准骨架+空态并列素材清单索取，用户补源码后再差异化。细则见 COLLAB_PROTOCOL.md 第六节。
+
 ## skill 资产交付规则（2026-09-22 定稿：跨工作空间自适应，防「无法读取该文件」）
 
 skill 仓库（`~/.codem/skills/`）必然在会话工作空间之外；把 skill 内文件（SKILL.md / FEATURE_MATRIX.md / COMPONENT_INDEX.md 等）直接作为 file artifact 交付时，宿主「转飞书云文档」读不到路径，报「当前无法读取该文件」。规则：
