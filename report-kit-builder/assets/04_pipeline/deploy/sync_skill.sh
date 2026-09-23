@@ -5,10 +5,16 @@ set -e
 # 项目根自动推导（脚本位于 <项目根>/04_pipeline/deploy/，换电脑/换目录自动适应）
 R="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 K="$HOME/.codem/skills/report-kit-builder"
+# 项目结构适配：05_app 本身是 git 仓则用之（标准结构）；否则取其下唯一 git 仓（如 05_app/<app> 二级结构）
+APP="$APP"
+if [ ! -d "$APP/.git" ]; then
+  APP="$(dirname "$(find "$APP" -maxdepth 2 -name .git -type d | head -1)")"
+  [ -d "$APP/.git" ] || { echo "FRESH-GATE FAILED: $R/05_app 下未找到 git 仓"; exit 1; }
+fi
 
 # 0. 新鲜度硬校验（2026-09-23 用户定稿：防旧版脚本/过期真源产生脏 PR，PR#3 事故根因防线）
 #    三条全过才允许 sync：05_app 干净、本地==GitHub 镜像 tip、skill 仓库基于最新 main
-( cd "$R/05_app" || exit 1
+( cd "$APP" || exit 1
   if [ -n "$(git status --porcelain)" ]; then
     echo "FRESH-GATE FAILED: 05_app 存在未提交改动，先 commit + push github 再 sync"; exit 1; fi
   LOCAL_TIP="$(git rev-parse HEAD)"
@@ -23,53 +29,53 @@ S="$HOME/.codem/skills"
   git checkout -q main 2>/dev/null || { echo "FRESH-GATE FAILED: skill 仓库无法切到 main"; exit 1; }
   git pull -q origin main 2>/dev/null || { echo "FRESH-GATE FAILED: skill 仓库 pull origin main 失败（本地 main 与远端冲突，先处理）"; exit 1; }
   # 防旧版脚本直推 main：确认分支保护后此处只可能产出分支+PR（见文末协议段）
-  echo "FRESH-GATE PASS: 05_app=$( cd "$R/05_app" && git rev-parse --short HEAD ) skill-main=$(git rev-parse --short HEAD)" )
+  echo "FRESH-GATE PASS: 05_app=$( cd "$APP" && git rev-parse --short HEAD ) skill-main=$(git rev-parse --short HEAD)" )
 
 # 1. 前端核心（theme + report-kit + docs）：直接覆盖
 rm -rf "$K/assets/theme" "$K/assets/report-kit" "$K/assets/docs"
-cp -r "$R/05_app/client/src/theme" "$K/assets/theme"
-cp -r "$R/05_app/client/src/components/report-kit" "$K/assets/report-kit"
-cp -r "$R/05_app/docs" "$K/assets/docs"
+cp -r "$APP/client/src/theme" "$K/assets/theme"
+cp -r "$APP/client/src/components/report-kit" "$K/assets/report-kit"
+cp -r "$APP/docs" "$K/assets/docs" 2>/dev/null || echo "SKIP: $R/05_app/docs 不存在（项目无独立 docs，保留 skill 现有 docs）"
 # 2b. 组件外部类型随包（B1 修复）：shared/api.interface.ts
 mkdir -p "$K/assets/shared"
-cp "$R/05_app/shared/api.interface.ts" "$K/assets/shared/"
+cp "$APP/shared/api.interface.ts" "$K/assets/shared/"
 # 2c. 页面组装层全量同步（2026-09-22 用户定稿：作为其它项目复刻基准，先一模一样再差异化）
 rm -rf "$K/assets/pages-Report"
-cp -r "$R/05_app/client/src/pages" "$K/assets/pages-Report"
+cp -r "$APP/client/src/pages" "$K/assets/pages-Report"
 # 2d. 入口层同步（2026-09-22 补盲区：路由入口 + Layout 深色导航，整屏高度公式依赖它）
 mkdir -p "$K/assets/app-shell"
-cp "$R/05_app/client/src/app.tsx" "$K/assets/app-shell/app.tsx"
-cp "$R/05_app/client/src/components/Layout.tsx" "$K/assets/app-shell/Layout.tsx"
+cp "$APP/client/src/app.tsx" "$K/assets/app-shell/app.tsx"
+cp "$APP/client/src/components/Layout.tsx" "$K/assets/app-shell/Layout.tsx"
 # 2f. 全局样式同步（2026-09-22 补盲区：index.css 含妙搭水印隐藏规则，漏同步导致其它项目右下角出现「妙搭生成」标签）
-cp "$R/05_app/client/src/index.css" "$K/assets/app-shell/index.css"
+cp "$APP/client/src/index.css" "$K/assets/app-shell/index.css"
 # 2g. 入口层补全（2026-09-22 资产穷举审计 A 类 5 文件：主入口/title守卫/根 html/字体排印/tw 主题/tw 配置）
-cp "$R/05_app/client/src/index.tsx" "$K/assets/app-shell/index.tsx"
-cp "$R/05_app/client/index.html" "$K/assets/app-shell/index.html"
-cp "$R/05_app/client/src/typography.css" "$K/assets/app-shell/typography.css"
-cp "$R/05_app/client/src/tailwind-theme.css" "$K/assets/app-shell/tailwind-theme.css"
-cp "$R/05_app/tailwind.config.ts" "$K/assets/app-shell/tailwind.config.ts"
+cp "$APP/client/src/index.tsx" "$K/assets/app-shell/index.tsx"
+cp "$APP/client/index.html" "$K/assets/app-shell/index.html"
+cp "$APP/client/src/typography.css" "$K/assets/app-shell/typography.css"
+cp "$APP/client/src/tailwind-theme.css" "$K/assets/app-shell/tailwind-theme.css"
+cp "$APP/tailwind.config.ts" "$K/assets/app-shell/tailwind.config.ts"
 # 2h. hooks 同步（2026-09-22 移动端审计补盲区：pages 模块 import hooks，漏同步=复刻断链）
 rm -rf "$K/assets/hooks"
-cp -r "$R/05_app/client/src/hooks" "$K/assets/hooks"
+cp -r "$APP/client/src/hooks" "$K/assets/hooks"
 # 2j. 后端 server 通用层同步（2026-09-23 用户定稿：数据库操作源码进 skill，禁止重复造轮子）
 # 只同步通用四模块+common+database+入口，排除脚手架示例 hello/view；README 是 skill 专属说明不覆盖
 rm -rf "$K/assets/server-modules/modules" "$K/assets/server-modules/common" "$K/assets/server-modules/database"
 mkdir -p "$K/assets/server-modules/modules"
-cp -r "$R/05_app/server/modules/raw-data" "$R/05_app/server/modules/cop-overview" \
-      "$R/05_app/server/modules/data-check" "$R/05_app/server/modules/sensor-data" \
+cp -r "$APP/server/modules/raw-data" "$APP/server/modules/cop-overview" \
+      "$APP/server/modules/data-check" "$APP/server/modules/sensor-data" \
       "$K/assets/server-modules/modules/"
-cp -r "$R/05_app/server/common" "$K/assets/server-modules/common"
-cp -r "$R/05_app/server/database" "$K/assets/server-modules/database"
-cp "$R/05_app/server/app.module.ts" "$R/05_app/server/main.ts" "$K/assets/server-modules/"
+cp -r "$APP/server/common" "$K/assets/server-modules/common"
+cp -r "$APP/server/database" "$K/assets/server-modules/database"
+cp "$APP/server/app.module.ts" "$APP/server/main.ts" "$K/assets/server-modules/"
 # 2k. 前端 API 客户端层 + shadcn UI 标准件同步（2026-09-23 举一反三排查补断链：15 个 pages/hooks 文件 import @client/src/api、10 类 ui 组件被引用，缺二者复刻即断链）
 rm -rf "$K/assets/api" "$K/assets/ui"
-cp -r "$R/05_app/client/src/api" "$K/assets/api"
-cp -r "$R/05_app/client/src/components/ui" "$K/assets/ui"
+cp -r "$APP/client/src/api" "$K/assets/api"
+cp -r "$APP/client/src/components/ui" "$K/assets/ui"
 # 2e. 双真源清理 + VERSION 写入（2026-09-22 三专家评审修复）
 # data-pipeline 是 1.4.0 时代旧残留，与 04_pipeline 双真源，一律删除防误读
 rm -rf "$K/assets/data-pipeline"
 VER="$(grep -m1 '^version:' "$K/SKILL.md" | awk '{print $2}')"
-printf '%s\nsynced %s from 05_app %s\n' "$VER" "$(date '+%F %T')" "$(cd "$R/05_app" && git rev-parse --short HEAD)" > "$K/VERSION"
+printf '%s\nsynced %s from 05_app %s\n' "$VER" "$(date '+%F %T')" "$(cd "$APP" && git rev-parse --short HEAD)" > "$K/VERSION"
 
 # 2. 04_pipeline：纯脚本版（剔除 .git/LFS/pbix/项目特定数据/运行日志/缓存）
 rm -rf "$K/assets/04_pipeline"
@@ -141,7 +147,7 @@ if git status --porcelain | grep -q .; then
   BR="feature/sync-$(date '+%Y%m%d-%H%M%S')"
   git checkout -qb "$BR"
   git add -A
-  git commit -qm "sync: from 05_app $(cd "$R/05_app" && git rev-parse --short HEAD) at $(date '+%F %T')"
+  git commit -qm "sync: from 05_app $(cd "$APP" && git rev-parse --short HEAD) at $(date '+%F %T')"
   echo "GIT-COMMIT $(git rev-parse --short HEAD)@$BR"
   # 4. 推分支 + 建 PR（网络抖动重试一次；合并由用户授权 agent 执行 gh pr merge --squash --delete-branch）
   if ! git push -q -u origin "$BR" 2>/dev/null; then
@@ -149,7 +155,7 @@ if git status --porcelain | grep -q .; then
     git push -q -u origin "$BR" || { echo "GITHUB-PUSH FAILED(网络，分支 $BR 留在本地，下次重推)"; exit 0; }
   fi
   PRURL="$(gh pr create --base main --head "$BR" \
-    --title "sync: from 05_app $(cd "$R/05_app" && git rev-parse --short HEAD)" \
+    --title "sync: from 05_app $(cd "$APP" && git rev-parse --short HEAD)" \
     --body "自动同步：05_app 真源 → skill 资产（sync_skill.sh 生成）。改动范围=本 PR 文件清单；验证=sync 输出 SYNCED + VERSION 已更新；回滚=revert 本 PR。agent 评审请按 COLLAB_PROTOCOL.md 第三节执行。" 2>/dev/null || true)"
   if [ -n "$PRURL" ]; then
     echo "PR-CREATED $PRURL"
