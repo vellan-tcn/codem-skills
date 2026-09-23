@@ -2,7 +2,7 @@
 
 > 场景：新妙搭应用（如 yixing-app）从模板脚手架创建（server 只有 hello/view 示例模块），页面从前端拷贝而来，调用 `/api/raw-data`、`/api/cop-overview` 等接口——**后端模块不拷入适配，页面就读不到数据**。
 
-## 示例食品厂服务端模块清单（真源：`05_app/server/modules/`）
+## 麻辣王子服务端模块清单（真源：`05_app/server/modules/`）
 
 | 模块 | 路由前缀 | 作用 | 页面对应 |
 |---|---|---|---|

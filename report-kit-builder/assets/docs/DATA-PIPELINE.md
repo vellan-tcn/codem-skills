@@ -44,7 +44,7 @@
 - 换项目时：改合并算法/选源准则只动 `merge/`，输出表结构（merged_daily 字段族）保持不变，后端与前端零改动。
 
 ### ④ 推数
-- 本仓实际脚本：`sync/mfg_replace_gen.py`（生成 merged_daily 替换 SQL：删旧行+插新行）+ `sync/fix_mfg_ts.py`（时间戳修正）。生成的 SQL 用 `lark-cli apps +db-execute` 推到妙搭库——推数用 `--environment online`，查询线上数据也须显式 `--environment online`（默认走 dev）。两个脚本均为示例食品厂一次性实现，**新项目参照其模式重写，不要直接跑**。
+- 本仓实际脚本：`sync/mfg_replace_gen.py`（生成 merged_daily 替换 SQL：删旧行+插新行）+ `sync/fix_mfg_ts.py`（时间戳修正）。生成的 SQL 用 `lark-cli apps +db-execute` 推到妙搭库——推数用 `--environment online`，查询线上数据也须显式 `--environment online`（默认走 dev）。两个脚本均为麻辣王子一次性实现，**新项目参照其模式重写，不要直接跑**。
 - `db-execute --file` 仅允许当前工作目录/temp/home files 目录下的 SQL 文件；SELECT 查询用 inline SQL 方式执行。
 
 #### ④-b 大批量上传（万行级，实战验证的方法）
@@ -70,7 +70,7 @@
 git push origin sprint/default
   → lark-cli apps +release-create --branch sprint/default
   → +release-get 轮询至 finished
-  → 线上地址：https://<your-domain>.feishuapp.com/app/<app_id>
+  → 线上地址：https://tl-group.feishuapp.com/app/app_17ebtg2mam8
 ```
 - git push 需导出 LARKSUITE_CLI_* UAT 环境变量，否则 credential helper 报 "not configured"。
 - 发布后必须 Playwright 复截防回退（排除 CDN 缓存：URL 加 ?v=N 或等 2 分钟）。
