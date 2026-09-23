@@ -6,6 +6,25 @@ set -e
 R="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 K="$HOME/.codem/skills/report-kit-builder"
 
+# 0. 新鲜度硬校验（2026-09-23 用户定稿：防旧版脚本/过期真源产生脏 PR，PR#3 事故根因防线）
+#    三条全过才允许 sync：05_app 干净、本地==GitHub 镜像 tip、skill 仓库基于最新 main
+( cd "$R/05_app" || exit 1
+  if [ -n "$(git status --porcelain)" ]; then
+    echo "FRESH-GATE FAILED: 05_app 存在未提交改动，先 commit + push github 再 sync"; exit 1; fi
+  LOCAL_TIP="$(git rev-parse HEAD)"
+  REMOTE_TIP="$(git ls-remote github refs/heads/sprint/default 2>/dev/null | awk '{print $1}')"
+  if [ -z "$REMOTE_TIP" ]; then
+    echo "FRESH-GATE FAILED: 无法读取 GitHub 镜像（remote 'github' 缺失或网络不通），先修复再 sync"; exit 1; fi
+  if [ "$LOCAL_TIP" != "$REMOTE_TIP" ]; then
+    echo "FRESH-GATE FAILED: 05_app 本地($LOCAL_TIP) != 镜像($REMOTE_TIP)，先 git push github 再 sync"; exit 1; fi )
+S="$HOME/.codem/skills"
+( cd "$S" || exit 1
+  git fetch -q origin 2>/dev/null || { echo "FRESH-GATE FAILED: skill 仓库 git fetch origin 失败（网络）"; exit 1; }
+  git checkout -q main 2>/dev/null || { echo "FRESH-GATE FAILED: skill 仓库无法切到 main"; exit 1; }
+  git pull -q origin main 2>/dev/null || { echo "FRESH-GATE FAILED: skill 仓库 pull origin main 失败（本地 main 与远端冲突，先处理）"; exit 1; }
+  # 防旧版脚本直推 main：确认分支保护后此处只可能产出分支+PR（见文末协议段）
+  echo "FRESH-GATE PASS: 05_app=$( cd "$R/05_app" && git rev-parse --short HEAD ) skill-main=$(git rev-parse --short HEAD)" )
+
 # 1. 前端核心（theme + report-kit + docs）：直接覆盖
 rm -rf "$K/assets/theme" "$K/assets/report-kit" "$K/assets/docs"
 cp -r "$R/05_app/client/src/theme" "$K/assets/theme"
@@ -74,17 +93,23 @@ python -X utf8 - "$K" <<'PYEOF'
 import os, io, sys
 K = sys.argv[1]
 repl = [
-    ('麻辣王子', '示例食品厂'),
-    ('malawangzi-cop-app', '<项目源码镜像仓库>'),
-    ('https://tl-group.feishu.cn/docx/RIRYd2TdjoE2g1x7FaHcwE7InAe', '（内部操作手册链接，接入时向维护者索取）'),
-    ('tl-group.feishuapp.com/app/app_17ebtg2mam8', 'https://<your-domain>.feishuapp.com/app/<app_id>'),
-    ('tl-group.feishuapp.com', '<your-domain>.feishuapp.com'),
-    ('tl-group.feishu.cn/docx/', '<内部文档链接>/docx/'),
-    ("workshop === 'mfg' ? 5.4 : 5.3", "workshop === 'mfg' ? 5.2 : 5.0"),
-    ('5.4 : 5.3', '5.2 : 5.0'),
-    ('配料 5.3 / 制造 5.4', '配料 5.0 / 制造 5.2'),
-("pgSchema('workspace_aadkvj7vniyyw')", "pgSchema('workspace_XXXXXXXXXXXX') /* ★★项目特定参数：新项目必改为自己的 schema 名，lark-cli apps +db-list 查，改完 grep workspace_ 确认无残留 */"),
-    ('workspace_aadkvj7vniyyw', 'workspace_XXXXXXXXXXXX'),
+    ('示例食品厂', '示例食品厂'),
+    ('<项目源码镜像仓库>', '<项目源码镜像仓库>'),
+    ('（内部操作手册链接，接入时向维护者索取）', '（内部操作手册链接，接入时向维护者索取）'),
+    ('https://<your-domain>.feishuapp.com/app/<app_id>', 'https://<your-domain>.feishuapp.com/app/<app_id>'),
+    ('<your-domain>.feishuapp.com', '<your-domain>.feishuapp.com'),
+    ('<内部文档链接>/docx/', '<内部文档链接>/docx/'),
+    ("workshop === 'mfg' ? 5.2 : 5.0", "workshop === 'mfg' ? 5.2 : 5.0"),
+    ('5.2 : 5.0', '5.2 : 5.0'),
+    ('配料 5.0 / 制造 5.2', '配料 5.0 / 制造 5.2'),
+('pgSchema(\'workspace_XXXXXXXXXXXX\')', "pgSchema('workspace_XXXXXXXXXXXX') /* ★★项目特定参数：新项目必改为自己的 schema 名，lark-cli apps +db-list 查，改完 grep workspace_ 确认无残留 */"),
+    ('workspace_XXXXXXXXXXXX', 'workspace_XXXXXXXXXXXX'),
+# 2026-09-23 补漏：裸词/凭证词（本脚本拷贝件自身含门禁模式串，漏项导致 SANITIZE-GATE FAILED）
+    ('<项目标识>', '<项目标识>'),
+    ('<内部域名>', '<内部域名>'),
+    ('<内部账号>', '<内部账号>'),
+    ('<内部凭证>', '<内部凭证>'),
+    ('<token前缀>', '<token前缀>'),
 ]
 for root, dirs, files in os.walk(K):
     if '.git' in root: continue
@@ -100,7 +125,7 @@ for root, dirs, files in os.walk(K):
             print('SANITIZED', p)
 PYEOF
 # 脱敏门禁：仍命中敏感词则中止（防映射表漏项把客户信息带进公开仓库）
-if grep -rniE "麻辣王子|malawangzi|tl-group|13914470091|tekene99|m0-tph|workspace_aadkvj7vniyyw" "$K" -q --include="*" 2>/dev/null; then
+if grep -rniE "示例食品厂|<项目标识>|<内部域名>|<内部账号>|<内部凭证>|<token前缀>|workspace_XXXXXXXXXXXX" "$K" -q --include="*" 2>/dev/null; then
   echo "SANITIZE-GATE FAILED：skill 仓库仍含敏感词（客户名/内部域名/凭证），禁止提交，请先补替换映射"
   exit 1
 fi

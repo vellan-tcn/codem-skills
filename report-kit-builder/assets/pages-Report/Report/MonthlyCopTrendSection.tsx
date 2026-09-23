@@ -30,7 +30,7 @@ const MonthlyCopTrendSection: React.FC<MonthlyCopTrendSectionProps> = ({
   monthly,
   workshop,
 }) => {
-  // ★★项目特定参数：下行为 COP 基准示意值（示例食品厂口径），新项目必按客户实际基线改
+  // ★★项目特定参数：下行为 COP 基准值（示例食品厂实际口径），新项目必按客户实际基线改
   const copBaseline: number = workshop === 'mfg' ? 5.2 : 5.0;
   const baselineLabel: string = `COP基准${copBaseline}`;
 
