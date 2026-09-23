@@ -1,6 +1,6 @@
-# 04_pipeline 数据链路（已收编）
+# data-pipeline 数据链路（已收编）
 
-> 来源：2026-09-20 从会话 scratchpad 收编的「活」脚本（死脚本/调试脚本未收）。原始数据绝对正确是红线，操作前先读 `05_app/docs/DATA-PIPELINE.md` 全流程手册。
+> 来源：2026-09-20 从会话 scratchpad 收编的「活」脚本（死脚本/调试脚本未收）。原始数据绝对正确是红线，操作前先读 `cop-app/docs/DATA-PIPELINE.md` 全流程手册。
 
 ## 目录
 
@@ -10,7 +10,7 @@
 | `merge/` | 多源合并与 COP 计算：mergecloud.py（配料云平台合并）、mfg_merger.py（**制造三源自动整合**：WinCC累计量CSV+能效报表CSV+有人云zip/xlsx → 坏值/停滞断链剔除 → monthly_rank 选源 → Excel 权威值兜底 → 增量 SQL + 互证审计，`--since` 增量 / `--audit-only`）、mfg_raw_extract.py（制造原始提取）、mfg_upload_prep.py（旧版一次性上传准备，已被 mfg_merger.py 取代）、cop_best_month.py（月度 COP 选源 monthly_rank）、cop_by_source.py / copcalc.py / agg.py（计算与汇总） |
 | `sync/` | 推数修正：fix_mfg_ts.py（raw_reading 时间戳修正）、mfg_replace_gen.py（替换 SQL 生成）。推数上云经 lark-cli apps +db-execute（注意 --environment online） |
 | `audit/` | audit_daily.py 逐日校验（起止示数差=当日用量、月度互证） |
-| `deploy/` | deploy.sh / release_only.sh（05_app 发布链：commit→push→release-create→轮询；内含会话级路径，复用时按需改） |
+| `deploy/` | deploy.sh / release_only.sh（cop-app 发布链：commit→push→release-create→轮询；内含会话级路径，复用时按需改） |
 
 ## 红线（不可违反）
 

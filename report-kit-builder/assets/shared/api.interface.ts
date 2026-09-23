@@ -45,6 +45,7 @@ export type CopDataSource =
   | 'sensor_data'
   | 'merged_daily'
   | 'mfg_merged_daily'
+  | 'raw_reading'
   | 'none';
 
 export interface CopOverviewResponse {

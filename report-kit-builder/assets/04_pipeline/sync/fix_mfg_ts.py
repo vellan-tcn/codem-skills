@@ -4,7 +4,7 @@ import glob
 import re
 import os
 
-CHUNK_DIR = '03_processed/制造/raw_chunks'
+CHUNK_DIR = '04_处理后数据/制造/raw_chunks'
 
 def norm_date(d):
     if '.' in d:

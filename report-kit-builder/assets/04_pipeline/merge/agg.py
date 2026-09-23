@@ -5,8 +5,7 @@ from collections import defaultdict
 from datetime import datetime
 
 EXP = r'C:\SQLData\export'
-ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # 工作空间根
-OUT = os.path.join(ROOT, 'miaoda_data')
+OUT = r'D:\OneDrive\C_天纳文件\03-TE_PlcCode\2025项目程序配套\湖南省_示例食品厂项目\运营报告\miaoda_data'
 os.makedirs(OUT, exist_ok=True)
 
 NAMES = {

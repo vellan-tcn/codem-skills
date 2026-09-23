@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 """cop_best_month.py — 按月选COP最高源为主源+其他源补全，实测月度COP变化与全月验算一致性"""
-from pathlib import Path
 import json
 from collections import defaultdict
 from datetime import date
 
 # ★★项目特定参数：下行为示例食品厂本机 merge_report.json 路径，新项目必改
-R = json.load(open(Path(__file__).resolve().parents[2] / '03_processed' / '配料' / 'merge_report.json', encoding='utf-8'))
+R = json.load(open('D:/OneDrive/C_天纳文件/03-TE_PlcCode/2025项目程序配套/湖南省_示例食品厂项目/运营报告/04_处理后数据/配料/merge_report.json', encoding='utf-8'))
 
 # 每天各源有效示数: day -> {src: (cool, elec)}（坏值0剔除）
 day_src = {}

@@ -3,10 +3,11 @@ import { Module } from '@nestjs/common';
 import { PlatformModule } from '@lark-apaas/fullstack-nestjs-core';
 
 import { GlobalExceptionFilter } from './common/filters/exception.filter';
+import { ViewModule } from './modules/view/view.module';
 import { SensorDataModule } from './modules/sensor-data/sensor-data.module';
 import { CopOverviewModule } from './modules/cop-overview/cop-overview.module';
 import { RawDataModule } from './modules/raw-data/raw-data.module';
-import { ViewModule } from './modules/view/view.module';
+import { DataCheckModule } from './modules/data-check/data-check.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { ViewModule } from './modules/view/view.module';
     SensorDataModule,
     CopOverviewModule,
     RawDataModule,
+    DataCheckModule,
     // ====== @route-section: business-modules END ======
 
     // ⚠️ @route-order: last

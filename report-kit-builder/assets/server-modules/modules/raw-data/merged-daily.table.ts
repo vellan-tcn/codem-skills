@@ -8,7 +8,7 @@ import {
   varchar,
 } from 'drizzle-orm/pg-core';
 
-const workspaceSchema = pgSchema('workspace_XXXXXXXXXXXX') /* ★★项目特定参数：新项目必改为自己的 schema 名，lark-cli apps +db-list 查，改完 grep workspace_ 确认无残留 */ /* ★★项目特定参数：新项目必改为自己的 schema 名，lark-cli apps +db-list 查，改完 grep workspace_ 确认无残留 */;
+const workspaceSchema = pgSchema('workspace_XXXXXXXXXXXX') /* ★★项目特定参数：新项目必改为自己的 schema 名，lark-cli apps +db-list 查，改完 grep workspace_ 确认无残留 */;
 
 export const mergedDaily = workspaceSchema.table('merged_daily', {
   id: uuid('id').primaryKey(),

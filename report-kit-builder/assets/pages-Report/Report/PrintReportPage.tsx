@@ -1,10 +1,9 @@
 import React, { useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Printer, Snowflake } from 'lucide-react';
-import { useReportData } from '@client/src/hooks/useReportData';
+import { useYixingReport } from '@client/src/hooks/useYixingReport';
 import { formatThousands } from '@client/src/pages/Report/report-utils';
 import type { MonthlyCopItem } from '@shared/api.interface';
-import type { RawWorkshop } from '@client/src/api/raw-data';
 
 /* ===== 常量（版式几何，与数据无关） ===== */
 const VIEW_W = 1120;
@@ -13,8 +12,8 @@ const BASE_Y = 380; // 横轴基线
 const BAR_MAX_H = 310; // 柱区最大高度
 const COP_SPAN = 330; // COP 折线纵向跨度
 const MONTH_SLOTS = 12; // 12 个月固定占位（未运行月份预留）
-/** 试机期月份（工况标注规则：该月含试机天） */
-const TRIAL_MONTHS = ['2026-03'];
+/** 试机期月份（工况标注规则：该月含试机天）——宜兴暂无 */
+const TRIAL_MONTHS: string[] = [];
 
 interface MonthSlot {
   month: string; // 'YYYY-MM'
@@ -45,12 +44,10 @@ function monthStatus(item: MonthlyCopItem | null): string {
 
 const PrintReportPage: React.FC = () => {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const workshopParam = searchParams.get('workshop');
-  const workshop: RawWorkshop = workshopParam === 'mfg' ? 'mfg' : 'pei';
+  const [searchParams] = useSearchParams();
   const yearParam = searchParams.get('year');
 
-  const report = useReportData(workshop, '');
+  const report = useYixingReport();
   const displayYear: number = report.selectedYear ?? new Date().getFullYear();
 
   // query 指定年份时切换
@@ -72,17 +69,14 @@ const PrintReportPage: React.FC = () => {
   }, [report.yearMonthly, displayYear]);
 
   // ===== 图表几何：全部由当月数据实时计算（数据更新即自动更新） =====
-  const { geoms, baseline, refY } = useMemo(() => {
+  const geoms = useMemo(() => {
     const maxCool = Math.max(1, ...slots.map((s: MonthSlot) => s.data?.coolKwh ?? 0));
     const maxElec = Math.max(1, ...slots.map((s: MonthSlot) => s.data?.elecKwh ?? 0));
     const maxCop = Math.max(0, ...slots.map((s: MonthSlot) => s.data?.cop ?? 0));
     const copAxis = Math.max(6.5, maxCop * 1.15); // COP 轴上限随数据自动扩展
-    // ★★项目特定参数：下行为 COP 基准值（示例食品厂实际口径），新项目必按客户实际基线改
-    const copBaseline: number = workshop === 'mfg' ? 5.2 : 5.0;
-    const referenceY = BASE_Y - (copBaseline / copAxis) * COP_SPAN;
 
     const slotW = VIEW_W / MONTH_SLOTS;
-    const geoms: ChartGeom[] = slots.map((s: MonthSlot, i: number) => {
+    return slots.map((s: MonthSlot, i: number) => {
       const cool = s.data?.coolKwh ?? 0;
       const elec = s.data?.elecKwh ?? 0;
       const cop = s.data?.cop ?? null;
@@ -112,22 +106,12 @@ const PrintReportPage: React.FC = () => {
         copLabelY,
       };
     });
-    return { geoms, baseline: copBaseline, refY: referenceY };
-  }, [slots, workshop]);
+  }, [slots]);
 
   const summary = report.yearSummary;
   const maxMonth: string = report.dataRange?.maxMonth ?? '';
   const kpiCool: string | null = summary ? formatThousands(Math.round(summary.yearCoolKwh)) : null;
   const kpiElec: string | null = summary ? formatThousands(Math.round(summary.yearElecKwh)) : null;
-  const workshopName: string = workshop === 'mfg' ? '制造车间' : '配料车间';
-
-  const switchWorkshop = (w: RawWorkshop): void => {
-    setSearchParams((prev: URLSearchParams) => {
-      const next = new URLSearchParams(prev);
-      next.set('workshop', w);
-      return next;
-    });
-  };
 
   return (
     <div className="print-stage min-h-screen bg-[#E8ECF2] pb-10">
@@ -141,20 +125,6 @@ const PrintReportPage: React.FC = () => {
           <ArrowLeft className="h-3.5 w-3.5" />
           返回主页
         </button>
-        {(['pei', 'mfg'] as RawWorkshop[]).map((w: RawWorkshop) => (
-          <button
-            key={w}
-            type="button"
-            onClick={() => switchWorkshop(w)}
-            className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${
-              workshop === w
-                ? 'border-rk-table-head bg-rk-table-head text-white'
-                : 'border-rk-line bg-white text-rk-ink hover:border-rk-blue'
-            }`}
-          >
-            {w === 'pei' ? '配料车间' : '制造车间'}
-          </button>
-        ))}
         {report.availableYears.map((y: number) => (
           <button
             key={y}
@@ -199,7 +169,7 @@ const PrintReportPage: React.FC = () => {
               <Snowflake className="h-[42px] w-[42px]" />
             </div>
             <div>
-              <h1 className="text-[40px] font-bold tracking-[1px]">示例食品厂 · {workshopName}冷站运营报告</h1>
+              <h1 className="text-[40px] font-bold tracking-[1px]">宜兴人民医院 · 中央冷站运营报告</h1>
               <div className="mt-[10px] text-[17px] tracking-[0.5px] text-white/80">制冷系统能效运营分析 · COP 能效评估</div>
             </div>
             <div className="ml-auto text-right text-[15px] leading-[1.65] text-white/85">
@@ -242,7 +212,7 @@ const PrintReportPage: React.FC = () => {
               </div>
             </div>
 
-            {/* 主图表：柱高 / 折线 / 参考线 / 标签全部由当月数据计算 */}
+            {/* 主图表：柱高 / 折线 / 标签全部由当月数据计算 */}
             <div className="flex min-h-0 flex-1 flex-col rounded-[16px] border border-rk-line bg-white px-[28px] pb-[14px] pt-[24px] shadow-[0_2px_10px_rgba(8,27,49,0.05)]">
               <div className="mb-[6px] flex items-center gap-3">
                 <span className="h-[26px] w-2 rounded bg-gradient-to-b from-rk-brand to-rk-teal" />
@@ -252,7 +222,7 @@ const PrintReportPage: React.FC = () => {
               <div className="mb-[6px] flex gap-[26px] text-[14.5px] text-rk-ink-soft">
                 <span><i className="mr-[6px] inline-block h-[14px] w-[14px] rounded-[3px] align-[-2px] bg-[#3B82F6]" />月供冷量</span>
                 <span><i className="mr-[6px] inline-block h-[14px] w-[14px] rounded-[3px] align-[-2px] bg-[#94A3B8]" />月用电量</span>
-                <span><i className="mr-[6px] inline-block h-[14px] w-[14px] rounded-[3px] align-[-2px] bg-[#F59E0B]" />COP</span>
+                <span><i className="mr-[6px] inline-block h-[14px] w-[14px] rounded-[3px] align-[-2px] bg-[#F59F0B]" />COP</span>
               </div>
               <div className="min-h-0 flex-1">
                 <svg viewBox={`0 0 ${VIEW_W} ${VIEW_H}`} preserveAspectRatio="none" className="h-full w-full">
@@ -282,7 +252,7 @@ const PrintReportPage: React.FC = () => {
                   {/* COP 折线 */}
                   <polyline
                     fill="none"
-                    stroke="#F59E0B"
+                    stroke="#F59F0B"
                     strokeWidth={4}
                     strokeLinejoin="round"
                     strokeLinecap="round"
@@ -334,14 +304,9 @@ const PrintReportPage: React.FC = () => {
                   {/* COP 折线数据点 */}
                   {geoms.map((g: ChartGeom, i: number) =>
                     g.copY !== null && slots[i].data !== null ? (
-                      <circle key={`pt-${slots[i].month}`} cx={g.centerX} cy={g.copY} r={7} fill="#F59E0B" stroke="#fff" strokeWidth={2} />
+                      <circle key={`pt-${slots[i].month}`} cx={g.centerX} cy={g.copY} r={7} fill="#F59F0B" stroke="#fff" strokeWidth={2} />
                     ) : null,
                   )}
-                  {/* COP 参考线（与平台同源：配料 5.0 / 制造 5.2） */}
-                  <line x1={0} y1={refY} x2={VIEW_W} y2={refY} stroke="#12B886" strokeWidth={2} strokeDasharray="8 6" opacity={0.55} />
-                  <text x={VIEW_W - 8} y={refY - 9} fontSize={14} fill="#0CA678" textAnchor="end" fontFamily="sans-serif">
-                    COP {baseline} 参考线（{workshop === 'mfg' ? '制造' : '配料'}）
-                  </text>
                   {/* 月份标签（横轴基线下方，12 个月完整占位） */}
                   <g fontSize={15} fill="#64748B" textAnchor="middle" fontFamily="sans-serif">
                     {slots.map((s: MonthSlot, i: number) => (
@@ -406,8 +371,8 @@ const PrintReportPage: React.FC = () => {
 
           {/* 页脚 */}
           <div className="mt-[24px] flex shrink-0 items-center justify-between bg-[#F7F9FC] px-[64px] text-[13.5px] text-[#8A97A8]" style={{ height: 56, borderTop: '1px solid #E6EAF1' }}>
-            <span>数据来源：WinCC 归档 + 有人云平台（累计表示数差值法核算）</span>
-            <span>示例食品厂冷站能效运营报告 · 自动生成</span>
+            <span>数据来源：中央冷站能耗监测（累计表示数差值法核算）</span>
+            <span>宜兴人医冷站能效运营报告 · 自动生成</span>
           </div>
         </div>
       )}

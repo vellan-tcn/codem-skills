@@ -3,8 +3,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 
 const NAV_ITEMS: { to: string; label: string }[] = [
   { to: '/', label: '能效运营报告' },
-  { to: '/raw-data', label: '配料车间数据查询' },
-  { to: '/mfg-data', label: '制造车间数据查询' },
+  { to: '/raw-data', label: '数据查询' },
 ];
 
 const Layout = () => {

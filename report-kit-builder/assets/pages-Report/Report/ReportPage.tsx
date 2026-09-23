@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
-import { useReportData } from '@client/src/hooks/useReportData';
+import { useYixingReport } from '@client/src/hooks/useYixingReport';
 import ReportTopbar from '@client/src/pages/Report/ReportTopbar';
 import CopKpiSection from '@client/src/pages/Report/CopKpiSection';
 import MonthlyCopTrendSection from '@client/src/pages/Report/MonthlyCopTrendSection';
 import OperationAnalysisSection from '@client/src/pages/Report/OperationAnalysisSection';
-import type { RawWorkshop } from '@client/src/api/raw-data';
 
 const ReportPage: React.FC = () => {
-  const [workshop, setWorkshop] = useState<RawWorkshop>('pei');
-  const report = useReportData(workshop, '');
+  const report = useYixingReport();
   const freshness: string | null = report.loading
     ? null
     : report.dataRange
@@ -18,12 +16,8 @@ const ReportPage: React.FC = () => {
 
   return (
     <div className="flex h-[calc(100vh-2.3125rem)] flex-col overflow-hidden bg-rk-bg-soft text-sm text-rk-ink">
-      <ReportTopbar
-        freshness={freshness}
-        workshop={workshop}
-        onWorkshopChange={setWorkshop}
-      />
-            <main className="mx-auto flex w-full min-w-0 max-w-[1240px] flex-1 flex-col gap-1.5 overflow-y-auto px-2 pt-1 pb-2 md:gap-[7px] md:overflow-hidden md:px-6 md:pt-2 md:pb-8">
+      <ReportTopbar freshness={freshness} />
+      <main className="mx-auto flex w-full min-w-0 max-w-[1240px] flex-1 flex-col gap-1.5 overflow-y-auto px-2 pt-1 pb-2 md:gap-[7px] md:overflow-hidden md:px-6 md:pt-2 md:pb-8">
         {report.error ? (
           <div className="rounded-[14px] border border-rk-danger/30 bg-rk-danger/5 p-4 text-sm text-rk-danger">
             {report.error}
@@ -48,20 +42,20 @@ const ReportPage: React.FC = () => {
         ) : (
           <>
             {/* 桌面端：区块按比例分摊屏幕高度，竖向铺满；移动端自然高度滚动 */}
-              <div className="flex shrink-0 flex-col md:flex-[0.95_1_0]">
+            <div className="flex shrink-0 flex-col md:flex-[0.95_1_0]">
               <CopKpiSection
-              year={report.selectedYear}
-            availableYears={report.availableYears}
-            onYearChange={report.setSelectedYear}
-            summary={report.yearSummary}
-          monthly={report.yearMonthly}
+                year={report.selectedYear}
+                availableYears={report.availableYears}
+                onYearChange={report.setSelectedYear}
+                summary={report.yearSummary}
+                monthly={report.yearMonthly}
               />
             </div>
             <div className="flex min-h-0 flex-1 flex-col md:flex-[4.5_1_0]">
-              <MonthlyCopTrendSection year={displayYear} monthly={report.yearMonthly} workshop={workshop} />
+              <MonthlyCopTrendSection year={displayYear} monthly={report.yearMonthly} />
             </div>
             <div className="flex shrink-0 flex-col md:flex-[0.3_1_0]">
-              <OperationAnalysisSection workshop={workshop} />
+              <OperationAnalysisSection />
             </div>
           </>
         )}

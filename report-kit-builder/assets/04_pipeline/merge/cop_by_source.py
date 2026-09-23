@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 """cop_by_source.py — 评估：各月若主用不同数据源，月度 COP 会有多大差异（为'优先选COP最高源'准则做实测）"""
-from pathlib import Path
 import json
 from collections import defaultdict
 
 # ★★项目特定参数：下行为示例食品厂本机 merge_report.json 路径，新项目必改
-R = json.load(open(Path(__file__).resolve().parents[2] / '03_processed' / '配料' / 'merge_report.json', encoding='utf-8'))
+R = json.load(open('D:/OneDrive/C_天纳文件/03-TE_PlcCode/2025项目程序配套/湖南省_示例食品厂项目/运营报告/04_处理后数据/配料/merge_report.json', encoding='utf-8'))
 
 # 每天各源示数：day -> {src: (cool, elec)}
 day_src = {}
