@@ -1,7 +1,7 @@
 ---
 name: report-kit-builder
 description: 报告/报表/看板类项目专用 UI 快速搭建套件：report-kit 报表组件 + theme 设计令牌（CSS/图表统一风格），自带架构文档与数据链路脚本骨架。触发场景（任一即可）：用户要做运营报告、数据报表、能耗/看板、大屏、报表查询页、月度报表、趋势图表；要统一 UI 风格/主题/容器/CSS；提到复用之前那套报表框架、看板框架、用之前项目的 UI、report-kit、示例食品厂那套风格。做任何"报告类页面"前先检查本 skill。
-version: 1.4.29
+version: 1.4.30
 ---
 
 # report-kit-builder：报表套件快速搭建（自包含）
@@ -19,6 +19,8 @@ version: 1.4.29
 | 四份文档（架构/复用指南/数据链路/依赖清单） | `assets/docs/` |
 | 数据链路脚本（wincc/merge/sync/audit/deploy） | `assets/04_pipeline/` |
 | 后端数据库操作源码（妙搭 server 通用层 20 文件：raw-data 按时间范围查询/cop-overview/data-check/sensor-data + common + drizzle 表定义，v1.4.29 起禁止重新造轮子，接入见 docs/BACKEND-PORTING.md） | `assets/server-modules/` |
+| 前端 API 客户端层（raw-data/cop-overview/data-check/sensor-data + index，页面与 hooks 依赖的 `@client/src/api`） | `assets/api/` |
+| shadcn UI 标准件（alert/button/calendar/card/checkbox/empty/input/popover/select/skeleton 等 58 文件，页面依赖的 `@client/src/components/ui`） | `assets/ui/` |
 
 skill 根目录：`$HOME/.codem/skills/report-kit-builder/`（CodeM 标准位置；换电脑 `git clone https://github.com/vellan-tcn/codem-skills ~/.codem/skills` 即恢复，用户名/盘符不同也能用——本文所有脚本路径均已动态推导，不含本机绝对路径）
 
@@ -130,6 +132,7 @@ skill 仓库（`~/.codem/skills/`）必然在会话工作空间之外；把 skil
 **破坏性变更标记（2026-09-21 用户定稿，源自业界 semver 实践）**：技能改动若会导致**旧项目拿到新版后行为变化/配置失效/用法不兼容**（如组件 API 改签名、目录规范调整、脚本入参变更、SKILL.md 规则语义反转），changelog 条目必须加 `BREAKING:` 前缀并写明迁移方法；纯新增/修复不加。有 BREAKING 的版本发布后在群里告知用户「受影响项目清单 + 迁移动作」，未告知不得算发布完成。目的：技能是全项目即时生效的共享层，标记破坏性变更 = 给旧项目一个择机迁移的机会，避免坏改动瞬间打崩所有项目。
 
 
+- **1.4.30（2026-09-23）** 举一反三补前端断链：新增 `assets/api/`（API 客户端 5 文件）+ `assets/ui/`（shadcn 标准件 58 文件）——依赖链验证：15 个 pages/hooks 文件 import `@client/src/api`、10 类 ui 组件被页面引用，缺二者复刻即断链；63 文件与真源逐字节一致，sync_skill.sh 新增 2k 段自动回流。business-ui/lib/utils/types 经 grep 验证无 skill 资产引用，不进。
 - **1.4.29（2026-09-23）** 后端数据库操作源码进 skill（用户定稿：通用层不重复造轮子）：新增 `assets/server-modules/`（05_app/server 通用层 20 文件脱敏拷贝——raw-data/cop-overview/data-check/sensor-data 四模块 + common + database + app.module/main，唯一硬编码 pgSchema workspace 名已改占位符并加 ★★ 标注，附 README）。同步价值：新项目后端不再依赖麻辣 05_app 仓库存在；sync_skill.sh 新增 server 层同步段（真源 05_app/server 改动自动回流）。
 - **1.4.28（2026-09-22）** 专家全盘评审后修复阻断项：① COLLAB_PROTOCOL 六轮增量补录 changelog（合并判据：相同内容不合并保持原样，仅实质区别/更优方案才合；PR 质量四条：小 PR>400 行拆分/自查后再提/UI 改动必附前后截图无截图不评审/Draft 预对齐；评审强化：当轮必须出意见不许挂起/分级评审 T1T2T3/分歧升级用户裁决留档/删除即证据链；同文件互斥后到先 rebase；agent 硬限每 PR 评论≤5 条；差异化回流闭环：skill 自我迭代后必须提示用户是否提交 GitHub 分支，不跳过提示不擅自推送）；② 修复章节编号零~八连续；③ 勘误技能库描述（public monorepo、sync 后自动建分支提 PR，非私有/自动 push）。
 - **1.4.27（2026-09-22）** 多机协作更新流程落地（业界调研：简化版 GitHub Flow + main 分支保护）：新增仓库根 COLLAB_PROTOCOL.md + PR 模板，全员（含维护机）改 skill 一律分支→PR→AI 五维评审（真源性/一致性/回退风险/完整性/可复用性）→用户在任意 agent 对话授权合并（gh pr merge --squash）；main 设分支保护禁直推/强推、必须 PR（approvals=0，AI 评审以 comment 留档，用户授权即合并开关）且 enforce_admins 含管理员；仓库已转 public（全量脱敏+sync 门禁防客户信息回流）；sync_skill.sh 由直推 main 改为自动建分支提 PR；合并后各机版本硬校验照旧。
