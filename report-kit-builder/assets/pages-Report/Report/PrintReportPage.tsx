@@ -77,6 +77,7 @@ const PrintReportPage: React.FC = () => {
     const maxElec = Math.max(1, ...slots.map((s: MonthSlot) => s.data?.elecKwh ?? 0));
     const maxCop = Math.max(0, ...slots.map((s: MonthSlot) => s.data?.cop ?? 0));
     const copAxis = Math.max(6.5, maxCop * 1.15); // COP 轴上限随数据自动扩展
+    // ★★项目特定参数：下行为 COP 基准示意值（示例食品厂口径），新项目必按客户实际基线改
     const copBaseline: number = workshop === 'mfg' ? 5.2 : 5.0;
     const referenceY = BASE_Y - (copBaseline / copAxis) * COP_SPAN;
 
@@ -336,7 +337,7 @@ const PrintReportPage: React.FC = () => {
                       <circle key={`pt-${slots[i].month}`} cx={g.centerX} cy={g.copY} r={7} fill="#F59E0B" stroke="#fff" strokeWidth={2} />
                     ) : null,
                   )}
-                  {/* COP 参考线（与平台同源：配料 5.3 / 制造 5.4） */}
+                  {/* COP 参考线（与平台同源：配料 5.0 / 制造 5.2） */}
                   <line x1={0} y1={refY} x2={VIEW_W} y2={refY} stroke="#12B886" strokeWidth={2} strokeDasharray="8 6" opacity={0.55} />
                   <text x={VIEW_W - 8} y={refY - 9} fontSize={14} fill="#0CA678" textAnchor="end" fontFamily="sans-serif">
                     COP {baseline} 参考线（{workshop === 'mfg' ? '制造' : '配料'}）

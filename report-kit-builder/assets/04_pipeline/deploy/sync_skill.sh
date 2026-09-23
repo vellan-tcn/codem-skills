@@ -32,6 +32,20 @@ cp "$R/05_app/tailwind.config.ts" "$K/assets/app-shell/tailwind.config.ts"
 # 2h. hooks 同步（2026-09-22 移动端审计补盲区：pages 模块 import hooks，漏同步=复刻断链）
 rm -rf "$K/assets/hooks"
 cp -r "$R/05_app/client/src/hooks" "$K/assets/hooks"
+# 2j. 后端 server 通用层同步（2026-09-23 用户定稿：数据库操作源码进 skill，禁止重复造轮子）
+# 只同步通用四模块+common+database+入口，排除脚手架示例 hello/view；README 是 skill 专属说明不覆盖
+rm -rf "$K/assets/server-modules/modules" "$K/assets/server-modules/common" "$K/assets/server-modules/database"
+mkdir -p "$K/assets/server-modules/modules"
+cp -r "$R/05_app/server/modules/raw-data" "$R/05_app/server/modules/cop-overview" \
+      "$R/05_app/server/modules/data-check" "$R/05_app/server/modules/sensor-data" \
+      "$K/assets/server-modules/modules/"
+cp -r "$R/05_app/server/common" "$K/assets/server-modules/common"
+cp -r "$R/05_app/server/database" "$K/assets/server-modules/database"
+cp "$R/05_app/server/app.module.ts" "$R/05_app/server/main.ts" "$K/assets/server-modules/"
+# 2k. 前端 API 客户端层 + shadcn UI 标准件同步（2026-09-23 举一反三排查补断链：15 个 pages/hooks 文件 import @client/src/api、10 类 ui 组件被引用，缺二者复刻即断链）
+rm -rf "$K/assets/api" "$K/assets/ui"
+cp -r "$R/05_app/client/src/api" "$K/assets/api"
+cp -r "$R/05_app/client/src/components/ui" "$K/assets/ui"
 # 2e. 双真源清理 + VERSION 写入（2026-09-22 三专家评审修复）
 # data-pipeline 是 1.4.0 时代旧残留，与 04_pipeline 双真源，一律删除防误读
 rm -rf "$K/assets/data-pipeline"
@@ -55,25 +69,68 @@ cp "$R/04_pipeline/deploy/"*.sh "$K/assets/04_pipeline/deploy/" 2>/dev/null || t
 # 排除项目专属/含本机会话路径的脚本，不进 skill（换机不可用，留在项目仓库）
 rm -f "$K/assets/04_pipeline/merge/"mfg_*.py "$K/assets/04_pipeline/sync/"mfg_*.py "$K/assets/04_pipeline/deploy/release_only.sh"
 
+# 2i. 脱敏（2026-09-22 仓库转 public 红线：客户信息以示例值替换，禁止进入公开仓库）
+python -X utf8 - "$K" <<'PYEOF'
+import os, io, sys
+K = sys.argv[1]
+repl = [
+    ('麻辣王子', '示例食品厂'),
+    ('malawangzi-cop-app', '<项目源码镜像仓库>'),
+    ('https://tl-group.feishu.cn/docx/RIRYd2TdjoE2g1x7FaHcwE7InAe', '（内部操作手册链接，接入时向维护者索取）'),
+    ('tl-group.feishuapp.com/app/app_17ebtg2mam8', 'https://<your-domain>.feishuapp.com/app/<app_id>'),
+    ('tl-group.feishuapp.com', '<your-domain>.feishuapp.com'),
+    ('tl-group.feishu.cn/docx/', '<内部文档链接>/docx/'),
+    ("workshop === 'mfg' ? 5.4 : 5.3", "workshop === 'mfg' ? 5.2 : 5.0"),
+    ('5.4 : 5.3', '5.2 : 5.0'),
+    ('配料 5.3 / 制造 5.4', '配料 5.0 / 制造 5.2'),
+("pgSchema('workspace_aadkvj7vniyyw')", "pgSchema('workspace_XXXXXXXXXXXX') /* ★★项目特定参数：新项目必改为自己的 schema 名，lark-cli apps +db-list 查，改完 grep workspace_ 确认无残留 */"),
+    ('workspace_aadkvj7vniyyw', 'workspace_XXXXXXXXXXXX'),
+]
+for root, dirs, files in os.walk(K):
+    if '.git' in root: continue
+    for fn in files:
+        p = os.path.join(root, fn)
+        try:
+            with io.open(p, encoding='utf-8') as f: s = f.read()
+        except Exception: continue
+        t = s
+        for a, b in repl: t = t.replace(a, b)
+        if t != s:
+            with io.open(p, 'w', encoding='utf-8', newline='\n') as f: f.write(t)
+            print('SANITIZED', p)
+PYEOF
+# 脱敏门禁：仍命中敏感词则中止（防映射表漏项把客户信息带进公开仓库）
+if grep -rniE "麻辣王子|malawangzi|tl-group|13914470091|tekene99|m0-tph|workspace_aadkvj7vniyyw" "$K" -q --include="*" 2>/dev/null; then
+  echo "SANITIZE-GATE FAILED：skill 仓库仍含敏感词（客户名/内部域名/凭证），禁止提交，请先补替换映射"
+  exit 1
+fi
+
 echo "SYNCED $(date '+%F %T')"
 du -sh "$K"
 
-# 3. git 自动留痕 + 推 GitHub（2026-09-21：技能 monorepo 化，git 根在 ~/.codem/skills）
+# 3. git 自动留痕 + 提 PR 走协作协议（2026-09-22 用户定稿：全员走 PR，禁止直推 main；
+#    协议见仓库根 COLLAB_PROTOCOL.md：AI 五维评审 → 用户在任意 agent 对话授权合并）
 S="$HOME/.codem/skills"
 cd "$S"
 if git status --porcelain | grep -q .; then
+  BR="feature/sync-$(date '+%Y%m%d-%H%M%S')"
+  git checkout -qb "$BR"
   git add -A
   git commit -qm "sync: from 05_app $(cd "$R/05_app" && git rev-parse --short HEAD) at $(date '+%F %T')"
-  echo "GIT-COMMIT $(git rev-parse --short HEAD)"
+  echo "GIT-COMMIT $(git rev-parse --short HEAD)@$BR"
+  # 4. 推分支 + 建 PR（网络抖动重试一次；合并由用户授权 agent 执行 gh pr merge --squash --delete-branch）
+  if ! git push -q -u origin "$BR" 2>/dev/null; then
+    sleep 5
+    git push -q -u origin "$BR" || { echo "GITHUB-PUSH FAILED(网络，分支 $BR 留在本地，下次重推)"; exit 0; }
+  fi
+  PRURL="$(gh pr create --base main --head "$BR" \
+    --title "sync: from 05_app $(cd "$R/05_app" && git rev-parse --short HEAD)" \
+    --body "自动同步：05_app 真源 → skill 资产（sync_skill.sh 生成）。改动范围=本 PR 文件清单；验证=sync 输出 SYNCED + VERSION 已更新；回滚=revert 本 PR。agent 评审请按 COLLAB_PROTOCOL.md 第三节执行。" 2>/dev/null || true)"
+  if [ -n "$PRURL" ]; then
+    echo "PR-CREATED $PRURL"
+  else
+    echo "PR-CREATE FAILED(分支 $BR 已推远端，请手动 gh pr create)"
+  fi
 else
   echo "GIT-NOCHANGE"
-fi
-# 4. 推 GitHub（远程仓库 vellan-tcn/codem-skills；网络抖动重试一次）
-if git diff --quiet HEAD origin/main 2>/dev/null; then :; else
-  if ! git push -q origin main 2>/dev/null; then
-    sleep 5
-    git push -q origin main && echo "GITHUB-PUSH ok(retry)" || echo "GITHUB-PUSH FAILED(网络，下次 sync 会补推)"
-  else
-    echo "GITHUB-PUSH ok"
-  fi
 fi

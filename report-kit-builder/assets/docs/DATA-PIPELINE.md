@@ -70,7 +70,7 @@
 git push origin sprint/default
   → lark-cli apps +release-create --branch sprint/default
   → +release-get 轮询至 finished
-  → 线上地址：https://<your-domain>.feishuapp.com/app/<app_id>
+  → 线上地址：https://https://<your-domain>.feishuapp.com/app/<app_id>
 ```
 - git push 需导出 LARKSUITE_CLI_* UAT 环境变量，否则 credential helper 报 "not configured"。
 - 发布后必须 Playwright 复截防回退（排除 CDN 缓存：URL 加 ?v=N 或等 2 分钟）。

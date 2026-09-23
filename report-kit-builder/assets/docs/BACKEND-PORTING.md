@@ -15,7 +15,7 @@
 
 1. **拷目录**：把 `server/modules/raw-data`、`server/modules/cop-overview`（按页面依赖决定是否连带 `sensor-data`/`data-check`）整目录拷到新项目 `server/modules/` 下。
 2. **注册模块**：新项目 `server/app.module.ts` 里 import 各 Module 类并加入 `imports: [...]`（麻辣的写法见 `app.module.ts:7-19`）。
-3. **改 workspace schema（关键坑）**：全库唯一硬编码在 `raw-data/merged-daily.table.ts` —— `pgSchema('workspace_aadkvj7vniyyw')`。改成新应用的 schema 名，获取方式：`lark-cli apps +db-list`（或线上建表后从表名前缀读）。改完 grep `workspace_` 确认无残留。
+3. **改 workspace schema（关键坑）**：全库唯一硬编码在 `raw-data/merged-daily.table.ts` —— `pgSchema('workspace_XXXXXXXXXXXX') /* ★★项目特定参数：新项目必改为自己的 schema 名，lark-cli apps +db-list 查，改完 grep workspace_ 确认无残留 */`。改成新应用的 schema 名，获取方式：`lark-cli apps +db-list`（或线上建表后从表名前缀读）。改完 grep `workspace_` 确认无残留。
 4. **建表前置（平台规范）**：新应用库里按规范建表（4 个审计列 `_created_at`/`_updated_at`/`_created_by`/`_updated_by` + RLS + policy，人员字段 `user_profile` 类型）——表结构对照麻辣库同名表；大批量灌数用 `bulk_upload_template.sh`（见 DATA-PIPELINE.md ④-b）。
 5. **类型/schema 再生成**：跑 `gen:db-schema` 重新生成数据库 schema，`type:check` 过一遍（增量缓存 ~20s）。
 6. **部署**：走 deploy.sh 一键部署（commit → push → release → 轮询），见 DATA-PIPELINE.md ⑥。
