@@ -13,9 +13,9 @@ import { Toaster } from '@client/src/components/ui/sonner';
 
 const CLIENT_BASE_PATH = process.env.CLIENT_BASE_PATH || '/';
 
-document.title = '示例食品厂项目运营报告';
+document.title = '宜兴人民医院COP能效运营报告';
 // 妙搭平台外壳会在应用加载后用应用名覆盖 title，这里守护回去（平台只设一次，不会循环打架）
-const APP_TITLE = '示例食品厂项目运营报告';
+const APP_TITLE = '宜兴人民医院COP能效运营报告';
 const guardTitle = () => { if (document.title !== APP_TITLE) document.title = APP_TITLE; };
 setTimeout(guardTitle, 1500);
 setTimeout(guardTitle, 4000);

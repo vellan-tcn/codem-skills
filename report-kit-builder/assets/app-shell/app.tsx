@@ -13,7 +13,6 @@ const RoutesComponent = () => {
       <Route element={<Layout />}>
         <Route index element={<ReportPage />} />
         <Route path="raw-data" element={<RawDataPage key="pei" />} />
-          <Route path="mfg-data" element={<RawDataPage key="mfg" workshop="mfg" />} />
       </Route>
       <Route path="print-report" element={<PrintReportPage />} />
       <Route path="*" element={<NotFound />} />

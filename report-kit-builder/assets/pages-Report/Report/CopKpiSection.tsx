@@ -46,7 +46,6 @@ const CopKpiSection: React.FC<CopKpiSectionProps> = ({
     },
   ];
 
-
   return (
     <SectionCard
       no="01"

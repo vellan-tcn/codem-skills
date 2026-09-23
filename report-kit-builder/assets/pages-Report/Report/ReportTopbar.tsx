@@ -2,16 +2,11 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Printer, Snowflake } from 'lucide-react';
 import type { ReportTopbarProps } from '@client/src/pages/Report/report-types';
-import type { RawWorkshop } from '@client/src/api/raw-data';
 
-const ReportTopbar: React.FC<ReportTopbarProps> = ({
-  freshness,
-  workshop = 'pei',
-  onWorkshopChange,
-}) => {
+const ReportTopbar: React.FC<ReportTopbarProps> = ({ freshness }) => {
   const navigate = useNavigate();
   const handlePrint = (): void => {
-    navigate(`/print-report?workshop=${workshop}`);
+    navigate('/print-report');
   };
 
   return (
@@ -30,43 +25,16 @@ const ReportTopbar: React.FC<ReportTopbarProps> = ({
         </div>
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-[13px] font-semibold text-white md:text-lg">
-            {workshop === 'mfg' ? '示例食品厂·制造车间冷站运营报告' : '示例食品厂·配料车间冷站运营报告'}
+            宜兴人民医院·中央冷站COP能效运营报告
           </h1>
-
         </div>
         <div className="ml-auto flex items-center gap-2 md:gap-3">
-            <span className="flex items-center gap-1.5">
-              {(['pei', 'mfg'] as RawWorkshop[]).map((w: RawWorkshop) => (
-                <button
-                  key={w}
-                  type="button"
-                  onClick={() => onWorkshopChange(w)}
-                  className={`shrink-0 rounded-full border px-2 py-0.5 text-[11px] transition-colors md:px-2.5 ${
-                    workshop === w
-                      ? 'border-rk-teal bg-rk-teal/20 font-medium text-white'
-                      : 'border-white/25 text-white/70 hover:text-white'
-                  }`}
-                >
-                  {w === 'pei' ? (
-                    <>
-                      <span className="md:hidden">配料</span>
-                      <span className="hidden md:inline">配料车间</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="md:hidden">制造</span>
-                      <span className="hidden md:inline">制造车间</span>
-                    </>
-                  )}
-                </button>
-              ))}
-            </span>
           <span className="hidden items-center gap-2 sm:flex">
-            <span className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-rk-teal" />
-            <span className="whitespace-nowrap text-xs text-white/85">
-              {freshness ?? '数据加载中'}
+              <span className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-rk-teal" />
+              <span className="whitespace-nowrap text-xs text-white/85">
+                {freshness ?? '数据加载中'}
+              </span>
             </span>
-          </span>
           <button
             type="button"
             onClick={handlePrint}

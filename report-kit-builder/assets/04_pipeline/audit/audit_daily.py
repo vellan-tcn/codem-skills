@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 """audit_daily.py — 2026年逐日审计：覆盖完整性 + 停机判定逐日核对 + 剔除后COP复算 + 全链一致性互证"""
-from pathlib import Path
 import json
 from collections import defaultdict
 from datetime import date, timedelta
 
 # ★★项目特定参数：下行为示例食品厂本机 merge_report.json 路径与 2026 年审计窗口，新项目必改
-R = json.load(open(Path(__file__).resolve().parents[2] / '03_processed' / '配料' / 'merge_report.json', encoding='utf-8'))
+R = json.load(open('D:/OneDrive/C_天纳文件/03-TE_PlcCode/2025项目程序配套/湖南省_示例食品厂项目/运营报告/04_处理后数据/配料/merge_report.json', encoding='utf-8'))
 ps = [p for p in R['periods'] if p['start'] >= '2026-01-01']
 d1 = lambda s: date(*map(int, s.split('-')))
 

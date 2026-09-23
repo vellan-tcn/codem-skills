@@ -28,12 +28,7 @@ const HEADERS: string[] = ['月份', '冷量(kW·h)', '电量(kW·h)', 'COP'];
 const MonthlyCopTrendSection: React.FC<MonthlyCopTrendSectionProps> = ({
   year,
   monthly,
-  workshop,
 }) => {
-  // ★★项目特定参数：下行为 COP 基准值（示例食品厂实际口径），新项目必按客户实际基线改
-  const copBaseline: number = workshop === 'mfg' ? 5.2 : 5.0;
-  const baselineLabel: string = `COP基准${copBaseline}`;
-
   const byMonth: Map<string, MonthlyCopItem> = useMemo(() => {
     const map: Map<string, MonthlyCopItem> = new Map();
     for (const item of monthly) {
@@ -69,22 +64,21 @@ const MonthlyCopTrendSection: React.FC<MonthlyCopTrendSectionProps> = ({
     },
   );
 
-
   const lastDataIdx: number = Math.max(
-      -1,
-      ...MONTH_LABELS.map(
-        (_label: string, i: number): number =>
-          coolValues[i] !== null || elecValues[i] !== null || copValues[i] !== null
-            ? i
-            : -1,
-      ),
-    );
-    const chartLabels: string[] =
-      lastDataIdx >= 0 && lastDataIdx < MONTH_LABELS.length - 1
-        ? MONTH_LABELS.slice(0, lastDataIdx + 1)
-        : MONTH_LABELS;
+    -1,
+    ...MONTH_LABELS.map(
+      (_label: string, i: number): number =>
+        coolValues[i] !== null || elecValues[i] !== null || copValues[i] !== null
+          ? i
+          : -1,
+    ),
+  );
+  const chartLabels: string[] =
+    lastDataIdx >= 0 && lastDataIdx < MONTH_LABELS.length - 1
+      ? MONTH_LABELS.slice(0, lastDataIdx + 1)
+      : MONTH_LABELS;
 
-    const config: ChartConfiguration = useMemo(() => {
+  const config: ChartConfiguration = useMemo(() => {
     const isMobile: boolean = isMobileViewport();
     return {
       type: 'bar',
@@ -118,17 +112,6 @@ const MonthlyCopTrendSection: React.FC<MonthlyCopTrendSectionProps> = ({
             spanGaps: false,
             yAxisID: 'yCop',
           },
-          {
-            type: 'line',
-            label: baselineLabel,
-            data: chartLabels.map((): number => copBaseline),
-            borderColor: 'rgba(239, 68, 68, 0.55)',
-            backgroundColor: 'rgba(239, 68, 68, 0.55)',
-            borderDash: [6, 6],
-            borderWidth: 2,
-            pointRadius: 0,
-            yAxisID: 'yCop',
-          },
         ],
       },
       options: {
@@ -153,9 +136,6 @@ const MonthlyCopTrendSection: React.FC<MonthlyCopTrendSectionProps> = ({
               ): string => {
                 if (ctx.dataset.label === 'COP') {
                   return `COP：${(ctx.parsed.y ?? 0).toFixed(1)}`;
-                }
-                if (ctx.dataset.label === baselineLabel) {
-                  return `${baselineLabel}（要求≥）`;
                 }
                 return `${ctx.dataset.label ?? ''}：${Math.round(ctx.parsed.y ?? 0).toLocaleString('zh-CN')} kWh`;
               },
@@ -200,7 +180,7 @@ const MonthlyCopTrendSection: React.FC<MonthlyCopTrendSectionProps> = ({
         },
       },
     };
-  }, [coolValues, elecValues, copValues, copBaseline, baselineLabel]);
+  }, [chartLabels, coolValues, elecValues, copValues]);
 
   return (
     <SectionCard
@@ -210,26 +190,26 @@ const MonthlyCopTrendSection: React.FC<MonthlyCopTrendSectionProps> = ({
       subtitle={`${year} 年`}
     >
       <div className="flex flex-1 min-h-0 flex-col gap-2.5">
-      <div className="min-w-0 shrink-0 overflow-x-auto rounded-[10px] border border-rk-line md:shrink-0">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-rk-table-head text-xs text-white">
-              {HEADERS.map((h: string) => (
-                <th
-                  key={h}
-                  className="whitespace-nowrap px-2 py-[3px] text-[11.5px] text-center font-medium md:px-3 md:py-1.5 md:text-base"
-                >
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {MONTH_LABELS.map((label: string, idx: number) => {
-              const i: number = idx;
-              const month: string = `${year}-${pad(i + 1)}`;
-              const item: MonthlyCopItem | undefined = byMonth.get(month);
-              const rowBg: string = i % 2 === 0 ? 'bg-rk-bg-faint' : 'bg-white';
+        <div className="min-w-0 shrink-0 overflow-x-auto rounded-[10px] border border-rk-line md:shrink-0">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-rk-table-head text-xs text-white">
+                {HEADERS.map((h: string) => (
+                  <th
+                    key={h}
+                    className="whitespace-nowrap px-2 py-[3px] text-[11.5px] text-center font-medium md:px-3 md:py-1.5 md:text-base"
+                  >
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {MONTH_LABELS.map((label: string, idx: number) => {
+                const i: number = idx;
+                const month: string = `${year}-${pad(i + 1)}`;
+                const item: MonthlyCopItem | undefined = byMonth.get(month);
+                const rowBg: string = i % 2 === 0 ? 'bg-rk-bg-faint' : 'bg-white';
                 if (item === undefined) {
                   return (
                     <tr key={month} className={rowBg}>
@@ -240,45 +220,49 @@ const MonthlyCopTrendSection: React.FC<MonthlyCopTrendSectionProps> = ({
                     </tr>
                   );
                 }
-              return (
-                <tr key={month} className={rowBg}>
-                  <td className="whitespace-nowrap px-2 py-[3px] text-[11.5px] text-center text-rk-ink md:px-3 md:py-1.5 md:text-base">
-                    {label}
-                  </td>
-                  <td className="whitespace-nowrap px-2 py-[3px] text-[11.5px] text-center tabular-nums text-rk-ink md:px-3 md:py-1.5 md:text-base">
-                    {formatThousands(item.coolKwh)}
-                  </td>
-                  <td className="whitespace-nowrap px-2 py-[3px] text-[11.5px] text-center tabular-nums text-rk-ink md:px-3 md:py-1.5 md:text-base">
-                    {formatThousands(item.elecKwh)}
-                  </td>
-                  <td className="whitespace-nowrap px-2 py-[3px] text-[11.5px] text-center tabular-nums text-rk-ink md:px-3 md:py-1.5 md:text-base">
-                    {item.cop.toFixed(1)}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-      <p className="mt-2 hidden text-xs text-rk-ink-faint md:hidden">
-        ← 左右滑动查看完整表格 →
-      </p>
+                return (
+                  <tr key={month} className={rowBg}>
+                    <td className="whitespace-nowrap px-2 py-[3px] text-[11.5px] text-center text-rk-ink md:px-3 md:py-1.5 md:text-base">
+                      {label}
+                    </td>
+                    <td className="whitespace-nowrap px-2 py-[3px] text-[11.5px] text-center tabular-nums text-rk-ink md:px-3 md:py-1.5 md:text-base">
+                      {item.coolKwh <= 0 ? (
+                        <span className="text-rk-ink-faint">停机</span>
+                      ) : (
+                        formatThousands(item.coolKwh)
+                      )}
+                    </td>
+                    <td className="whitespace-nowrap px-2 py-[3px] text-[11.5px] text-center tabular-nums text-rk-ink md:px-3 md:py-1.5 md:text-base">
+                      {formatThousands(item.elecKwh)}
+                    </td>
+                    <td className="whitespace-nowrap px-2 py-[3px] text-[11.5px] text-center tabular-nums text-rk-ink md:px-3 md:py-1.5 md:text-base">
+                      {item.cop.toFixed(1)}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-2 hidden text-xs text-rk-ink-faint md:hidden">
+          ← 左右滑动查看完整表格 →
+        </p>
 
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col md:gap-1">
-        {monthly.length === 0 ? (
-          <div className="py-10 text-center text-sm text-rk-ink-faint">
-            暂无月度数据
-          </div>
-        ) : (
-          <>
-            <ChartCanvas config={config} className="min-h-[64px] w-full flex-1 overflow-visible md:h-full md:min-h-[110px]" />
-            <p className="mt-0.5 shrink-0 text-[9px] text-rk-ink-soft md:text-xs">
-              左轴：冷量/电量（kWh） · 右轴：COP · 横轴：月份
-            </p>
-          </>
-        )}
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col md:gap-1">
+          {monthly.length === 0 ? (
+            <div className="py-10 text-center text-sm text-rk-ink-faint">
+              暂无月度数据
+            </div>
+          ) : (
+            <>
+              <ChartCanvas config={config} className="min-h-[64px] w-full flex-1 overflow-visible md:h-full md:min-h-[110px]" />
+              <p className="mt-0.5 shrink-0 text-[9px] text-rk-ink-soft md:text-xs">
+                左轴：冷量/电量（kWh） · 右轴：COP · 横轴：月份
+              </p>
+            </>
+          )}
+        </div>
       </div>
-          </div>
     </SectionCard>
   );
 };

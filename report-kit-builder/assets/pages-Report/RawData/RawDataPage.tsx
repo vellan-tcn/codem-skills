@@ -32,7 +32,7 @@ const RawDataPage: React.FC<{ workshop?: RawWorkshop }> = ({ workshop = 'pei' })
     const [excludeMode, setExcludeMode] = useState<string>('none');
   const excludeKinds: string =
     {
-      all: 'stopped,trial',
+      all: 'stopped',
       none: '',
       stopped: 'stopped',
       trial: 'trial',
@@ -139,20 +139,9 @@ const RawDataPage: React.FC<{ workshop?: RawWorkshop }> = ({ workshop = 'pei' })
                 }
                 className="max-w-[40vw] truncate rounded-[8px] border border-rk-line bg-white px-1.5 py-1 text-[11px] text-rk-ink outline-none focus:border-rk-blue md:max-w-none md:rounded-md md:px-2 md:text-xs"
               >
-                  <option value="all">
-                    {workshop === 'mfg'
-                      ? '全部剔除（停机+试机/切机）'
-                      : '全部剔除（停机+冷机未开+试机）'}
-                  </option>
-                  <option value="none">全部保留</option>
-                  <option value="stopped">
-                    {workshop === 'mfg'
-                      ? '仅剔除停机'
-                      : '仅剔除停机（含冷机未开）'}
-                  </option>
-                  <option value="trial">
-                    {workshop === 'mfg' ? '仅剔除试机/切机' : '仅剔除试机'}
-                  </option>
+                  <option value="all">全部剔除（停机）</option>
+                    <option value="none">全部保留</option>
+                    <option value="stopped">仅剔除停机</option>
                 </select>
             </label>
         </div>

@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { ChevronRight, LineChart } from 'lucide-react';
-import type { RawWorkshop } from '@client/src/api/raw-data';
 
 /** 运行分析入口：分析报告制作中，点击提示等待 */
-const OperationAnalysisSection: React.FC<{ workshop: RawWorkshop }> = () => {
+const OperationAnalysisSection: React.FC = () => {
   const [notified, setNotified] = useState(false);
 
   const handleClick = (): void => {

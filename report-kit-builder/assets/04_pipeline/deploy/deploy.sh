@@ -1,40 +1,41 @@
 #!/bin/bash
 # deploy.sh（持久版）— 一键部署：commit → push → release → 自动同步 report-kit-builder skill
 # 用法: bash deploy.sh "<commit说明>" <文件1> <文件2> ...
-# 位置：运营报告/04_pipeline/deploy/（跨会话可用，不依赖 scratchpad）
+# 位置：宜兴人医运营报告/04_pipeline/deploy/（跨会话可用，不依赖 scratchpad）
 # release finished 后自动调用同目录 sync_skill.sh（2026-09-21 红线，防忘记同步）
 set -e
 MSG="$1"; shift
 FILES="$@"
-# ============ 项目配置（新项目拷走本脚本后只改 APP ID）============
-# 路径自动推导：脚本位于 <项目根>/04_pipeline/deploy/，不依赖本机绝对路径（换电脑/换目录自动适应）
-DP="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"          # 本脚本所在目录（日志输出处）
-ROOT="$(cd "$DP/../.." && pwd)"                              # 项目根（运营报告/）
-APP_DIR="$ROOT/05_app"                                       # ② 项目代码仓目录
-APP=app_17ebtg2mam8                # ① 妙搭应用 ID（新项目必改）
+# ============ 项目配置（新项目拷走本脚本后必改以下三行）============
+APP=app_17ej77spcx5                # ① 妙搭应用 ID
+APP_DIR='D:/AgentWorkSpace/Project/宜兴人医运营报告/05_app/yixing-app'  # ② 项目代码仓目录
+DP='D:/AgentWorkSpace/Project/宜兴人医运营报告/04_pipeline/deploy'  # ③ 本脚本所在目录（日志输出处）
 # ====================================================================
 OUT="$DP/deploy_result.txt"
 LOG="$DP/deploy_log.txt"
-# CODEM CLI：动态探测最新版本（避免升级后路径失效）
-CODEM=$(ls -d "$HOME"/.codem/runtime/versions/*/node_modules/@lark-codem/codem-cli-win32-x64/bin/codem.exe 2>/dev/null | sort -V | tail -1)
-[ -z "$CODEM" ] && { echo 'ERROR: 未找到 codem CLI（$HOME/.codem/runtime/versions/*/...），请确认 CodeM 已安装'; exit 1; }
-CFG=$(cygpath -w "$HOME/.codem/config.json" 2>/dev/null || echo 'C:\Users\vella\.codem\config.json')
-command -v node >/dev/null || { echo 'ERROR: node 不在 PATH'; exit 1; }
+CODEM=$(ls -d /c/Users/vella/.codem/runtime/versions/*/node_modules/@lark-codem/codem-cli-win32-x64/bin/codem.exe 2>/dev/null | sort -V | tail -1)
+export PATH="/c/Users/vella/AppData/Roaming/TRAE SOLO CN/ModularData/ai-agent/vm/tools/node:$PATH"
 export LARKSUITE_CLI_APP_ID='cli_aac5d4db58385cd3'
 export LARKSUITE_CLI_BRAND='feishu'
 export LARKSUITE_CLI_DEFAULT_AS='user'
 export LARKSUITE_CLI_STRICT_MODE='user'
-export LARKSUITE_CLI_USER_ACCESS_TOKEN="$("$CODEM" __hook tool-uat-env --print-uat --config-path "$CFG")"
-mi() { "$CODEM" __hook tool-uat-env --run-managed-lark-cli --config-path "$CFG" -- "$@"; }
+export LARKSUITE_CLI_USER_ACCESS_TOKEN="$("$CODEM" __hook tool-uat-env --print-uat --config-path 'C:\Users\vella\.codem\config.json')"
+mi() { "$CODEM" __hook tool-uat-env --run-managed-lark-cli --config-path 'C:\Users\vella\.codem\config.json' -- "$@"; }
 : > "$LOG"
 cd "$APP_DIR"
 
 T0=$(date +%s)
 finish() { echo "$1" | tee "$OUT"; exit 0; }
 
-# 1) commit（pre-commit 选择性门禁）
-if ! git add $FILES 2>>"$LOG"; then finish "FAIL: git add 失败"; fi
-if ! git commit -m "$MSG" >>"$LOG" 2>&1; then finish "FAIL: commit 失败（门禁未过），见 $LOG"; fi
+# 1) commit（pre-commit 选择性门禁；无新改动时跳过）
+if [ -n "$FILES" ] && ! git add $FILES 2>>"$LOG"; then finish "FAIL: git add 失败"; fi
+if ! git commit -m "$MSG" >>"$LOG" 2>&1; then
+  if git diff --cached --quiet && git diff --quiet; then
+    echo "无新改动，跳过 commit" >> "$LOG"
+  else
+    finish "FAIL: commit 失败（门禁未过），见 $LOG"
+  fi
+fi
 CID=$(git rev-parse --short HEAD)
 
 # 2) push（妙搭远端 + GitHub 镜像）
