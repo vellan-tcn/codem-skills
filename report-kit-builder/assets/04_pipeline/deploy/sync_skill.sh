@@ -25,6 +25,20 @@ S="$HOME/.codem/skills"
   # 防旧版脚本直推 main：确认分支保护后此处只可能产出分支+PR（见文末协议段）
   echo "FRESH-GATE PASS: 05_app=$( cd "$R/05_app" && git rev-parse --short HEAD ) skill-main=$(git rev-parse --short HEAD)" )
 
+  # 0b. 基线完整性校验（2026-09-23 审计 B-05：防「新鲜但不完整」的源穿透，宜兴 9 文件版 PR#7 教训）
+  #    页数下限 + 四层基准关键文件存在性，任一不满足即拒绝 sync
+  PAGES_N="$(find "$R/05_app/client/src/pages" -type f \( -name '*.tsx' -o -name '*.ts' \) 2>/dev/null | wc -l | tr -d ' ')"
+  if [ "${PAGES_N:-0}" -lt 16 ]; then
+  echo "FRESH-GATE FAILED: pages 文件数 ${PAGES_N:-0} < 16（复刻基准为 16 文件），疑似不完整/被回退的源，拒绝 sync"; exit 1; fi
+  for f in "$R/05_app/client/src/app.tsx" "$R/05_app/client/src/components/Layout.tsx" \
+       "$R/05_app/client/src/index.css" "$R/05_app/client/index.html" "$R/05_app/tailwind.config.ts" \
+       "$R/05_app/server/modules/raw-data" "$R/05_app/server/modules/cop-overview" \
+       "$R/05_app/server/modules/data-check" "$R/05_app/server/modules/sensor-data" \
+       "$R/05_app/client/src/components/report-kit" "$R/05_app/client/src/theme" "$R/05_app/docs"; do
+  [ -e "$f" ] || { echo "FRESH-GATE FAILED: 四层基准关键文件缺失 $f，疑似不完整源，拒绝 sync"; exit 1; }
+  done
+  echo "BASELINE-CHECK PASS: pages=${PAGES_N} 文件，四层基准关键文件齐全"
+
 # 1. 前端核心（theme + report-kit + docs）：直接覆盖
 rm -rf "$K/assets/theme" "$K/assets/report-kit" "$K/assets/docs"
 cp -r "$R/05_app/client/src/theme" "$K/assets/theme"
@@ -90,7 +104,7 @@ rm -f "$K/assets/04_pipeline/merge/"mfg_*.py "$K/assets/04_pipeline/sync/"mfg_*.
 
 # 2i. 脱敏（2026-09-22 仓库转 public 红线：客户信息以示例值替换，禁止进入公开仓库）
 python -X utf8 - "$K" <<'PYEOF'
-import os, io, sys
+import os, io, sys, json
 K = sys.argv[1]
 repl = [
     ('示例食品厂', '示例食品厂'),
@@ -111,6 +125,16 @@ repl = [
     ('<内部凭证>', '<内部凭证>'),
     ('<token前缀>', '<token前缀>'),
 ]
+# 2026-09-23 审计 B-06：脱敏映射私有化——真实敏感词映射放本机私有文件 ~/.codem/.sanitize_map.json
+# （skill 拷贝件因门禁脱敏后内置表退化为恒等占位，新项目用拷贝件脱敏不生效；私有文件补齐真实映射）
+PRIV = os.path.expanduser('~/.codem/.sanitize_map.json')
+if os.path.isfile(PRIV):
+    try:
+        m = json.load(io.open(PRIV, encoding='utf-8'))
+        repl = [(str(k), str(v)) for k, v in m.get('replacements', {}).items()] + repl
+        print('PRIV-MAP LOADED', len(m.get('replacements', {})), 'entries')
+    except Exception as e:
+        print('WARN: 私有脱敏映射读取失败', e)
 for root, dirs, files in os.walk(K):
     if '.git' in root: continue
     for fn in files:
@@ -125,7 +149,11 @@ for root, dirs, files in os.walk(K):
             print('SANITIZED', p)
 PYEOF
 # 脱敏门禁：仍命中敏感词则中止（防映射表漏项把客户信息带进公开仓库）
-if grep -rniE "示例食品厂|<项目标识>|<内部域名>|<内部账号>|<内部凭证>|<token前缀>|workspace_XXXXXXXXXXXX" "$K" -q --include="*" 2>/dev/null; then
+# 2026-09-23 审计 B-06：门禁词表同样合并私有映射文件的 key（skill 拷贝件内置词表已脱敏退化，须靠私有文件补齐）
+GATE_WORDS="示例食品厂|<项目标识>|<内部域名>|<内部账号>|<内部凭证>|<token前缀>|workspace_XXXXXXXXXXXX"
+PRIV_WORDS="$(python -X utf8 -c "import json,io,os;p=os.path.expanduser('~/.codem/.sanitize_map.json');print('|'.join(json.load(io.open(p,encoding='utf-8')).get('gate_words',[])) if os.path.isfile(p) else '')" 2>/dev/null || true)"
+if [ -n "$PRIV_WORDS" ]; then GATE_WORDS="${GATE_WORDS}|${PRIV_WORDS}"; fi
+if grep -rniE "$GATE_WORDS" "$K" -q --include="*" 2>/dev/null; then
   echo "SANITIZE-GATE FAILED：skill 仓库仍含敏感词（客户名/内部域名/凭证），禁止提交，请先补替换映射"
   exit 1
 fi
