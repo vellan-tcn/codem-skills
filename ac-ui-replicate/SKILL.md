@@ -64,6 +64,9 @@ description: 空调节能监控平台（ac-ui）UI 复刻技能。仅当目标�
    - **有人云控制台** `https://mp.usr.cn`（登录跳转 account.usr.cn 密码登录）——交互态基准（下拉/分页/表格/开关/12 项红线实测来源）
    - **登录凭证已加密记住、随时可访问**：技能包内 `references/credentials.enc`（AES-256-GCM 密文）→ `node references/decrypt-credentials.mjs <密钥hex文件>` 解密（密钥由管理员私下提供，不在技能包内；解密结果落临时文件，用后删除）；本机环境另有 `.codem/memory/usr-credentials.md`（明文，仅本机使用，两平台账号密码齐全；禁止写入任何分发物）
    - 对比结论须来自 playwright DOM 实测（computed style 逐项 diff），不凭截图目测（红线 8）
+3. **版本基准链（g_159，2026-09-23 请求人确立，硬性规则）**：
+   - **妙搭版**参考上述两平台；**其他版本（本地 ioserver/win、ac-monitor win/linux 等）一律以妙搭线上版为唯一基准**，不直接参考两平台、不自创
+   - 本地版本所有细节（布局/组件/间距/主题/交互态/文案）逐项盘点，与妙搭版 DOM diff 差异清零才算完成
 
 ### 目录结构变更流程与边界（先梳理→规划→整理，硬性顺序）
 
