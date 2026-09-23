@@ -30,7 +30,7 @@ server-modules/
 | 场景 | 约束 | 既有方案（源码位置） |
 |---|---|---|
 | 单次查询上限 | 妙换单次 db 查询有行数上限，全量直接 select 会被截断 | 分块游标拉取：`RAW_BATCH = 5000` 行/批，最多 `RAW_MAX_BATCHES = 400` 批（=200 万行，覆盖全年 30 秒级数据），超出置 truncated 标记（`raw-data.service.ts`） |
-| 聚合桶上限 | 单次聚合桶数受限 | `MAX_BUCKETS = 120000`，超限自动升粒度（`raw-data.service.ts`） |
+| 聚合桶上限 | 单次聚合桶数受限（`MAX_BUCKETS = 120000`） | 超限**抛 400 异常**提示「缩小时间范围或改用更粗粒度」（`raw-data.service.ts`，非自动升粒度） |
 | 数据核对拉取 | 大范围逐分钟数据 | `MINUTE_LIMIT = 5000` 分钟 / `READING_LIMIT = 200000` 行，分批 fetch（`data-check.service.ts`） |
 | 大批量上传 | `+db-data-import` 有行数/体积上限，超大文件被拒 | 分批 SQL + 断点续传（`assets/04_pipeline/sync/bulk_upload_template.sh`，done_list 跳过已完成片，失败修复后重跑自动续传） |
 
@@ -39,3 +39,6 @@ server-modules/
 | 位置 | 参数 | 说明 |
 |---|---|---|
 | raw-data/merged-daily.table.ts | pgSchema workspace 名 | ★★ 标注在代码行上方 |
+| raw-data/raw-data.service.ts | `COOL_TAG = 'v893'` / `ELEC_TAG = 'v919'`（WinCC 位号）、`FIXED_TAGS` / `MFG_TAGS` | 位号是新项目的数据源标识，必按新项目实际位号改 |
+| 各模块表引用 | `mergedDaily` / `mfgMergedDaily` 双车间表对 | 双车间（pei/mfg）骨架是通用模式；新项目车间数/表名不同时按此模式增删 |
+| cop-overview.service.ts | `workshop: 'pei'` 默认值与表选择逻辑 | 同上，按新项目车间结构改 |
