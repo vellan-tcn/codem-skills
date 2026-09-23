@@ -22,7 +22,7 @@ report-kit 12 组件 + theme 拷入新项目后，**不是开箱即编译**，�
 
 组件引用了以下 6 个：`ui/button`、`ui/calendar`、`ui/checkbox`、`ui/input`、`ui/popover`、`ui/select`。
 
-获取：`git clone https://github.com/vellan-tcn/malawangzi-cop-app`，拷 `client/src/components/ui/` 整目录（多拷无害，shadcn 组件间有互引）。
+获取：`git clone https://github.com/vellan-tcn/<项目源码镜像仓库>`，拷 `client/src/components/ui/` 整目录（多拷无害，shadcn 组件间有互引）。
 
 ## 4. 项目 API 层（需新项目自备或从镜像拷改）
 

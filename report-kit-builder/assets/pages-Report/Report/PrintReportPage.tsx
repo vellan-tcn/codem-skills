@@ -77,7 +77,6 @@ const PrintReportPage: React.FC = () => {
     const maxElec = Math.max(1, ...slots.map((s: MonthSlot) => s.data?.elecKwh ?? 0));
     const maxCop = Math.max(0, ...slots.map((s: MonthSlot) => s.data?.cop ?? 0));
     const copAxis = Math.max(6.5, maxCop * 1.15); // COP 轴上限随数据自动扩展
-    // ★★项目特定参数：下行为 COP 基准示意值（示例食品厂口径），新项目必按客户实际基线改
     const copBaseline: number = workshop === 'mfg' ? 5.2 : 5.0;
     const referenceY = BASE_Y - (copBaseline / copAxis) * COP_SPAN;
 

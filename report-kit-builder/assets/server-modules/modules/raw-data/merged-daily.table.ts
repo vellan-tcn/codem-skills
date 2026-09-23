@@ -8,8 +8,7 @@ import {
   varchar,
 } from 'drizzle-orm/pg-core';
 
-// ★★项目特定参数：下行为妙搭应用数据库 schema 名（全库唯一硬编码），新项目必改为自己的——获取方式：lark-cli apps +db-list（或线上建表后从表名前缀读）。改完 grep workspace_ 确认无残留。
-const workspaceSchema = pgSchema('workspace_XXXXXXXXXXXX');
+const workspaceSchema = pgSchema('workspace_XXXXXXXXXXXX') /* ★★项目特定参数：新项目必改为自己的 schema 名，lark-cli apps +db-list 查，改完 grep workspace_ 确认无残留 */;
 
 export const mergedDaily = workspaceSchema.table('merged_daily', {
   id: uuid('id').primaryKey(),
