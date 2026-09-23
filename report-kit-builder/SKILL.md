@@ -1,7 +1,7 @@
 ---
 name: report-kit-builder
 description: 报告/报表/看板类项目专用 UI 快速搭建套件：report-kit 报表组件 + theme 设计令牌（CSS/图表统一风格），自带架构文档与数据链路脚本骨架。触发场景（任一即可）：用户要做运营报告、数据报表、能耗/看板、大屏、报表查询页、月度报表、趋势图表；要统一 UI 风格/主题/容器/CSS；提到复用之前那套报表框架、看板框架、用之前项目的 UI、report-kit、示例食品厂那套风格。做任何"报告类页面"前先检查本 skill。
-version: 1.4.31
+version: 1.4.32
 ---
 
 # report-kit-builder：报表套件快速搭建（自包含）
@@ -132,6 +132,7 @@ skill 仓库（`~/.codem/skills/`）必然在会话工作空间之外；把 skil
 **破坏性变更标记（2026-09-21 用户定稿，源自业界 semver 实践）**：技能改动若会导致**旧项目拿到新版后行为变化/配置失效/用法不兼容**（如组件 API 改签名、目录规范调整、脚本入参变更、SKILL.md 规则语义反转），changelog 条目必须加 `BREAKING:` 前缀并写明迁移方法；纯新增/修复不加。有 BREAKING 的版本发布后在群里告知用户「受影响项目清单 + 迁移动作」，未告知不得算发布完成。目的：技能是全项目即时生效的共享层，标记破坏性变更 = 给旧项目一个择机迁移的机会，避免坏改动瞬间打崩所有项目。
 
 
+- **1.4.32（2026-09-23）** sync 供应链防线（PR#3/4 事故修复：宜兴旧版 sync 脚本产生 data-pipeline 残留复活+脱敏漏网 PR）：① sync_skill.sh 新增 FRESH-GATE 三条新鲜度硬校验（05_app 工作区干净 / 本地 tip==GitHub 镜像 tip / skill 仓库拉最新 main，任一不过直接拒绝 sync）；② 脱敏映射补 5 项（<项目标识>/<内部域名> 裸词、账号/密码/token 前缀凭证词，堵本脚本拷贝件自含门禁模式串的漏项）；③ v1.4.30/31 四处评审修复回灌 05_app 真源（DEPENDENCIES ui/api 视角、两处 COP 基线 ★★注释、pgSchema 行内注释，防 sync 全量覆盖回退，真源 commit 0638da2）；④ 各项目 agent 规则：skill 更新后必须拉新版 sync_skill.sh 覆盖项目内旧拷贝。
 - **1.4.31（2026-09-23）** 专家全盘评审修复（5 项）：① PrintReportPage L340 注释泄露真源真实 COP 基线（配料 5.3/制造 5.4）→ 脱敏为 5.0/5.2，脱敏映射表补注释形态条目；② 删 assets/data-pipeline 旧残留目录（1.4.0 双真源，含客户名/内部域名 5 文件，公开仓库泄密风险）；③ docs 5 文件 + server-modules/README 旧同步产物含敏感词（当时映射表无 workspace/新条目）→ 按最新映射全库重跑脱敏，门禁复扫全库干净；④ 删 pages-Report 根级 report-types.ts 残留（真源已无，与 Report/ 下重复）；⑤ skill 内 sync_skill.sh 拷贝件过期 119→135 行重拷；⑥ DEPENDENCIES.md 第3/4节过期指引更新（ui/api 已进 skill，不再从镜像取）。
 - **1.4.30（2026-09-23）** 举一反三补前端断链：新增 `assets/api/`（API 客户端 5 文件）+ `assets/ui/`（shadcn 标准件 58 文件）——依赖链验证：15 个 pages/hooks 文件 import `@client/src/api`、10 类 ui 组件被页面引用，缺二者复刻即断链；63 文件与真源逐字节一致，sync_skill.sh 新增 2k 段自动回流。business-ui/lib/utils/types 经 grep 验证无 skill 资产引用，不进。
 - **1.4.29（2026-09-23）** 后端数据库操作源码进 skill（用户定稿：通用层不重复造轮子）：新增 `assets/server-modules/`（05_app/server 通用层 20 文件脱敏拷贝——raw-data/cop-overview/data-check/sensor-data 四模块 + common + database + app.module/main，唯一硬编码 pgSchema workspace 名已改占位符并加 ★★ 标注，附 README）。同步价值：新项目后端不再依赖麻辣 05_app 仓库存在；sync_skill.sh 新增 server 层同步段（真源 05_app/server 改动自动回流）。
