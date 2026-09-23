@@ -18,13 +18,15 @@ report-kit 12 组件 + theme 拷入新项目后，**不是开箱即编译**，�
 "@shared/*": ["shared/*"]
 ```
 
-## 3. shadcn ui/ 基础组件（skill 不含，从 GitHub 镜像取）
+## 3. shadcn ui/ 基础组件（v1.4.30 起 skill 已含：`assets/ui/` 58 文件）
 
-组件引用了以下 6 个：`ui/button`、`ui/calendar`、`ui/checkbox`、`ui/input`、`ui/popover`、`ui/select`。
+组件引用了以下 10 类：`ui/alert`、`ui/button`、`ui/calendar`、`ui/card`、`ui/checkbox`、`ui/empty`、`ui/input`、`ui/popover`、`ui/select`、`ui/skeleton`。
 
-获取：`git clone https://github.com/vellan-tcn/malawangzi-cop-app`，拷 `client/src/components/ui/` 整目录（多拷无害，shadcn 组件间有互引）。
+获取：直接拷 skill `assets/ui/` 整目录到 `client/src/components/ui/`（多拷无害，shadcn 组件间有互引），无需再从镜像仓库取。
 
-## 4. 项目 API 层（需新项目自备或从镜像拷改）
+## 4. 项目 API 层（v1.4.30 起 skill 已含：`assets/api/` 5 文件）
+
+- 直接拷 `assets/api/` 到 `client/src/api/`，接口实现按新项目后端微调（接口路径/车间字面量）
 
 - `client/src/api/raw-data.ts`：至少导出 `RawWorkshop` 类型（`'pei' | 'mfg'`，新项目按车间改字面量）
 - `client/src/api/index.ts`：数据请求封装（参照镜像，接口按新项目后端改）

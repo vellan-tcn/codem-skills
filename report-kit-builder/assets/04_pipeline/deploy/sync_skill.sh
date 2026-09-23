@@ -32,6 +32,20 @@ cp "$R/05_app/tailwind.config.ts" "$K/assets/app-shell/tailwind.config.ts"
 # 2h. hooks 同步（2026-09-22 移动端审计补盲区：pages 模块 import hooks，漏同步=复刻断链）
 rm -rf "$K/assets/hooks"
 cp -r "$R/05_app/client/src/hooks" "$K/assets/hooks"
+# 2j. 后端 server 通用层同步（2026-09-23 用户定稿：数据库操作源码进 skill，禁止重复造轮子）
+# 只同步通用四模块+common+database+入口，排除脚手架示例 hello/view；README 是 skill 专属说明不覆盖
+rm -rf "$K/assets/server-modules/modules" "$K/assets/server-modules/common" "$K/assets/server-modules/database"
+mkdir -p "$K/assets/server-modules/modules"
+cp -r "$R/05_app/server/modules/raw-data" "$R/05_app/server/modules/cop-overview" \
+      "$R/05_app/server/modules/data-check" "$R/05_app/server/modules/sensor-data" \
+      "$K/assets/server-modules/modules/"
+cp -r "$R/05_app/server/common" "$K/assets/server-modules/common"
+cp -r "$R/05_app/server/database" "$K/assets/server-modules/database"
+cp "$R/05_app/server/app.module.ts" "$R/05_app/server/main.ts" "$K/assets/server-modules/"
+# 2k. 前端 API 客户端层 + shadcn UI 标准件同步（2026-09-23 举一反三排查补断链：15 个 pages/hooks 文件 import @client/src/api、10 类 ui 组件被引用，缺二者复刻即断链）
+rm -rf "$K/assets/api" "$K/assets/ui"
+cp -r "$R/05_app/client/src/api" "$K/assets/api"
+cp -r "$R/05_app/client/src/components/ui" "$K/assets/ui"
 # 2e. 双真源清理 + VERSION 写入（2026-09-22 三专家评审修复）
 # data-pipeline 是 1.4.0 时代旧残留，与 04_pipeline 双真源，一律删除防误读
 rm -rf "$K/assets/data-pipeline"
@@ -68,6 +82,9 @@ repl = [
     ('tl-group.feishu.cn/docx/', '<内部文档链接>/docx/'),
     ("workshop === 'mfg' ? 5.4 : 5.3", "workshop === 'mfg' ? 5.2 : 5.0"),
     ('5.4 : 5.3', '5.2 : 5.0'),
+    ('配料 5.3 / 制造 5.4', '配料 5.0 / 制造 5.2'),
+("pgSchema('workspace_aadkvj7vniyyw')", "pgSchema('workspace_XXXXXXXXXXXX') /* ★★项目特定参数：新项目必改为自己的 schema 名，lark-cli apps +db-list 查，改完 grep workspace_ 确认无残留 */"),
+    ('workspace_aadkvj7vniyyw', 'workspace_XXXXXXXXXXXX'),
 ]
 for root, dirs, files in os.walk(K):
     if '.git' in root: continue
@@ -83,7 +100,7 @@ for root, dirs, files in os.walk(K):
             print('SANITIZED', p)
 PYEOF
 # 脱敏门禁：仍命中敏感词则中止（防映射表漏项把客户信息带进公开仓库）
-if grep -rniE "麻辣王子|malawangzi|tl-group|13914470091|tekene99|m0-tph" "$K" -q --include="*" 2>/dev/null; then
+if grep -rniE "麻辣王子|malawangzi|tl-group|13914470091|tekene99|m0-tph|workspace_aadkvj7vniyyw" "$K" -q --include="*" 2>/dev/null; then
   echo "SANITIZE-GATE FAILED：skill 仓库仍含敏感词（客户名/内部域名/凭证），禁止提交，请先补替换映射"
   exit 1
 fi

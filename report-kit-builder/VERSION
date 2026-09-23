@@ -1,2 +1,2 @@
-1.4.30
-PR#1 increments 2026-09-23: +assets/api (5) +assets/ui (58) frontend dependency chain
+1.4.31
+PR#1 increments 2026-09-23: expert-review fixes (sanitize leak comments, remove data-pipeline residue, re-sanitize docs, refresh stale copies)

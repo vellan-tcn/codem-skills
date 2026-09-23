@@ -337,7 +337,7 @@ const PrintReportPage: React.FC = () => {
                       <circle key={`pt-${slots[i].month}`} cx={g.centerX} cy={g.copY} r={7} fill="#F59E0B" stroke="#fff" strokeWidth={2} />
                     ) : null,
                   )}
-                  {/* COP 参考线（与平台同源：配料 5.3 / 制造 5.4） */}
+                  {/* COP 参考线（与平台同源：配料 5.0 / 制造 5.2） */}
                   <line x1={0} y1={refY} x2={VIEW_W} y2={refY} stroke="#12B886" strokeWidth={2} strokeDasharray="8 6" opacity={0.55} />
                   <text x={VIEW_W - 8} y={refY - 9} fontSize={14} fill="#0CA678" textAnchor="end" fontFamily="sans-serif">
                     COP {baseline} 参考线（{workshop === 'mfg' ? '制造' : '配料'}）
