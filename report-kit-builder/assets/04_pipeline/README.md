@@ -23,3 +23,5 @@
 ## 新项目复用
 
 算法因项目而异：改 merge/ 内的选源准则、坏值阈值、工况规则即可，输出表结构（merged_daily 字段族）保持不变，后端与前端零改动。
+
+> **进 skill 的边界**（sync_skill.sh 同步范围）：merge/sync/audit/deploy 的通用脚本 + wincc 解码器会同步进 skill；**项目专属脚本不进 skill**——`mfg_*.py`（制造三源整合，含本项目数据假设）、`deploy/release_only.sh`（含本机会话路径）、运行日志/数据产物（deploy_log.txt、deploy_result.txt、pbix 等）。新项目如需制造三源整合能力，向维护者索取 mfg_* 脚本后按本项目数据源改选源参数。
