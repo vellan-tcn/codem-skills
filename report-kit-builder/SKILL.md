@@ -1,7 +1,7 @@
 ---
 name: report-kit-builder
 description: 报告/报表/看板类项目专用 UI 快速搭建套件：report-kit 报表组件 + theme 设计令牌（CSS/图表统一风格），自带架构文档与数据链路脚本骨架。触发场景（任一即可）：用户要做运营报告、数据报表、能耗/看板、大屏、报表查询页、月度报表、趋势图表；要统一 UI 风格/主题/容器/CSS；提到复用之前那套报表框架、看板框架、用之前项目的 UI、report-kit、示例食品厂那套风格。做任何"报告类页面"前先检查本 skill。
-version: 1.4.33
+version: 1.4.34
 ---
 
 # report-kit-builder：报表套件快速搭建（自包含）
@@ -124,7 +124,7 @@ skill 仓库（`~/.codem/skills/`）必然在会话工作空间之外；把 skil
 | 项目 | GitHub 镜像（私有） | 参考亮点 |
 |---|---|---|
 | 示例食品厂 COP 能效报告 | https://github.com/vellan-tcn/<项目源码镜像仓库> | 真源：theme/report-kit 组件全量、月度报表+跨度合并+COP 选源算法、移动端卡片化、deploy.sh 直改部署链 |
-| 宜兴人民医院冷却水能效运营报告（yixing-app） | https://github.com/vellan-tcn/yixing-hospital-report-app | 多页打印统一（print-cop 确认表 / print-settlement 结算单：A4 黑白、表格化、签字区、URL 不打印）；移动端全局一致性（分页条/按钮/列宽/悬浮提示统一、首行首列锁定）；扣减口径与 COP 对比同源对齐 |
+| 宜兴人民医院冷却水能效运营报告（yixing-app） | https://github.com/vellan-tcn/yixing-hospital-report-app | 控件级一致性量化规格（按钮/下拉/输入/日期触发器/卡片/月份胶囊全站一套 32px 基准、口径切换固定按钮、表格 table-fixed+三锁定、分页条全站同构——UI-CONSISTENCY.md 来源）；多页打印统一（print-cop 确认表 / print-settlement 结算单：A4 黑白、表格化、签字区、URL 不打印）；扣减口径与 COP 对比同源对齐 |
 
 **使用规则（新报告项目开工第 1 步，在工具链自检之后）**：
 1. 按新项目类型从上表挑选相关参考项目，`git clone` 其仓库到本会话 scratchpad（只读，不改动）
@@ -141,6 +141,7 @@ skill 仓库（`~/.codem/skills/`）必然在会话工作空间之外；把 skil
 **破坏性变更标记（2026-09-21 用户定稿，源自业界 semver 实践）**：技能改动若会导致**旧项目拿到新版后行为变化/配置失效/用法不兼容**（如组件 API 改签名、目录规范调整、脚本入参变更、SKILL.md 规则语义反转），changelog 条目必须加 `BREAKING:` 前缀并写明迁移方法；纯新增/修复不加。有 BREAKING 的版本发布后在群里告知用户「受影响项目清单 + 迁移动作」，未告知不得算发布完成。目的：技能是全项目即时生效的共享层，标记破坏性变更 = 给旧项目一个择机迁移的机会，避免坏改动瞬间打崩所有项目。
 
 
+- **1.4.34（2026-10-10）** 控件一致性复刻规范入技能（用户核心诉求：跨页视觉零抖动）：新增 `assets/docs/UI-CONSISTENCY.md`——全站控件量化规格（按钮/下拉/输入/日期触发器/卡片/月份胶囊/表格三锁定/分页条同构/悬浮层级/双端字号档）+ 验收清单七条；SKILL.md 新增「控件一致性复刻红线」小节（同语义控件一套量化规格、口径切换按钮宽高固定、表格 table-fixed+三锁定、分页条全站同构、禁止裸 hex）；跨项目参考库宜兴行亮点更新（控件级一致性）；VERSION 同步 1.4.34。源自宜兴多轮「按钮/下拉/分页/列宽跨页不一致、切换抖动」修复沉淀，通用脱敏后入技能。
 - **1.4.33（2026-10-10）** 宜兴人医项目沉淀回灌（攒批一次 PR）：①新增 `assets/docs/PRINT-PATTERNS.md` 打印页通用模式（A4 黑白五件套 @page/padding/zoom/灰阶/工具条、屏显与打印分离、打印按钮统一尺寸、整页汇报结构要素、验证清单——源自 print-cop/print-settlement 实测）；②SKILL.md 打印红线补「多页打印统一（确认单/结算单）通用要素」小节；③跨项目源码参考库登记宜兴行（yixing-hospital-report-app，亮点：多页打印统一、移动端全局一致性、扣减口径同源对齐）；④VERSION 同步 1.4.33。只增不删、不覆盖既有基准资产。
 - **1.4.32（2026-09-23）** sync 供应链防线（PR#3/4 事故修复：宜兴旧版 sync 脚本产生 data-pipeline 残留复活+脱敏漏网 PR）：① sync_skill.sh 新增 FRESH-GATE 三条新鲜度硬校验（05_app 工作区干净 / 本地 tip==GitHub 镜像 tip / skill 仓库拉最新 main，任一不过直接拒绝 sync）；② 脱敏映射补 5 项（<项目标识>/<内部域名> 裸词、账号/密码/token 前缀凭证词，堵本脚本拷贝件自含门禁模式串的漏项）；③ v1.4.30/31 四处评审修复回灌 05_app 真源（DEPENDENCIES ui/api 视角、两处 COP 基线 ★★注释、pgSchema 行内注释，防 sync 全量覆盖回退，真源 commit 0638da2）；④ 各项目 agent 规则：skill 更新后必须拉新版 sync_skill.sh 覆盖项目内旧拷贝。
 - **1.4.31（2026-09-23）** 专家全盘评审修复（5 项）：① PrintReportPage L340 注释泄露真源真实 COP 基线（配料 5.3/制造 5.4）→ 脱敏为 5.0/5.2，脱敏映射表补注释形态条目；② 删 assets/data-pipeline 旧残留目录（1.4.0 双真源，含客户名/内部域名 5 文件，公开仓库泄密风险）；③ docs 5 文件 + server-modules/README 旧同步产物含敏感词（当时映射表无 workspace/新条目）→ 按最新映射全库重跑脱敏，门禁复扫全库干净；④ 删 pages-Report 根级 report-types.ts 残留（真源已无，与 Report/ 下重复）；⑤ skill 内 sync_skill.sh 拷贝件过期 119→135 行重拷；⑥ DEPENDENCIES.md 第3/4节过期指引更新（ui/api 已进 skill，不再从镜像取）。
@@ -268,6 +269,7 @@ MCP server 只做检索层；生成/修改仍走 SKILL.md 流程（真源不变�
 6. 组件/页面禁止裸 hex 颜色，一律 `rk-*` 语义令牌
 7. 业务计算不进前端组件
 8. 涉及界面改动必须先做本地 HTML 预览稿给用户确认，再动代码（用户定稿流程）
+9. **控件一致性复刻红线（2026-10-10 新增，详见 `assets/docs/UI-CONSISTENCY.md`）**：同语义控件全站只有一套量化规格——①按钮/下拉/输入/日期触发器统一 32px 高（移动 `h-[32px]`、桌面 `md:h-8`），字号移动 `text-xs`/桌面 `md:text-sm`（表格 11.5px/16px）；②口径/模式切换按钮宽高必须固定（如 `w-36 min-h-[32px]`），防止切换抖动；③表格 `table-fixed` + 表头吸顶/首列锁定/汇总吸底三锁定 + 移动端禁止横向滚动、列宽按最长字符标定；④分页条全站同构（右下吸底、h-8、`justify-end`）；⑤任何页面出现规范外控件新尺寸，先回灌本技能（只增不删）再应用，禁止只在单项目自造值；⑥验收双视口（390×844/1280×800）逐项对照 UI-CONSISTENCY 验收清单。
 
 ## 验证
 
