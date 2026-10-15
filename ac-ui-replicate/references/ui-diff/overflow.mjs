@@ -9,7 +9,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const BASE = process.env.BASE_URL || 'https://<your-domain>.feishuapp.com/app/app_17dyn9qdmww';
+const BASE = process.env.BASE_URL || 'https://tl-group.feishuapp.com/app/app_17dyn9qdmww';
 const USER = process.env.OS_USER || 'admin';
 const PASS = process.env.OS_PASS || 'admin123';
 

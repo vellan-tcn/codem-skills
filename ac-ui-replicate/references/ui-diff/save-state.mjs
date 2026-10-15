@@ -6,7 +6,7 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
-const OURS = 'https://<your-domain>.feishuapp.com/app/app_17dyn9qdmww/dashboard';
+const OURS = 'https://tl-group.feishuapp.com/app/app_17dyn9qdmww/dashboard';
 
 const browser = await chromium.launch({ channel: 'msedge', headless: false });
 const ctx = await browser.newContext({ viewport: { width: 1366, height: 900 } });

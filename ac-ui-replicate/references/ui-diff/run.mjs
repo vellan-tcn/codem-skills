@@ -10,7 +10,7 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
-const OURS = 'https://<your-domain>.feishuapp.com/app/app_17dyn9qdmww';
+const OURS = 'https://tl-group.feishuapp.com/app/app_17dyn9qdmww';
 const OURS_STORAGE = resolve(ROOT, 'storage/ours.json'); // 首次需 node save-state.mjs 人工登录一次生成
 
 const PROFILES = {

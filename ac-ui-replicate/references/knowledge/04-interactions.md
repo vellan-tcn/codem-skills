@@ -1,6 +1,6 @@
 # 04 交互规格知识库（妙搭空调平台线上站 · playwright 实测）
 
-> 数据来源：playwright 实测采集 `int-data.json`（16 页），站点 `https://<your-domain>.feishuapp.com/app/app_17dyn9qdmww`。
+> 数据来源：playwright 实测采集 `int-data.json`（16 页），站点 `https://tl-group.feishuapp.com/app/app_17dyn9qdmww`。
 > 所有文案/色值/尺寸均为 computed style 精确值；lab()/oklab() 为浏览器 computed color 原样输出，近似等价：
 > - `lab(2.75381 0 0)` ≈ 近黑 #0A0A0A（正文深色）
 > - `lab(48.496 0 0)` ≈ 中灰 #6E6E6E（次要文字）
