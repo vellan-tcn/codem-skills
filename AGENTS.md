@@ -9,5 +9,6 @@
 5. 分级评审与合并判据（评审报告先交付用户，用户确认后才合并）
 6. **禁止直接 push main**（分支保护已启用，一律分支 + PR）
 7. 禁止直接改 `report-kit-builder/assets/` 内文件（资产由真源经 sync_skill.sh 单向流出）
+8. **敏感信息门禁（2026-11-07 新增）**：本仓为 public，真实客户名 / 内部飞书站点 / 应用 ID / schema 名 / 内部仓库名 **一律禁止进 commit、PR、提交信息**。commit 前必须过 `scripts/check_sensitive.py` 门禁（pre-commit + commit-msg 钩子），命中即拦截；详情见 `COLLAB_PROTOCOL.md` 第九章。
 
 理由：协议文件本身不会自动注入 agent 会话（PR#1 教训：规则没进上下文=不存在），本文件作为仓库根的入口提示，确保任何在此仓库工作的 agent 先读协议再动手。
