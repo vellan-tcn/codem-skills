@@ -1,0 +1,598 @@
+{
+ "_readme": "42 组件契约，从 knowledge/03-components.md 与 DESIGN.md §2 提取，class/色值/尺寸均为源码原文抄录",
+ "business_constraint": {
+  "公共强约束": "必须受控（value+onChange 成对）；禁止传 undefined；空值 单选 null / 多选 []；自带搜索数据源"
+ },
+ "ui_copy_note": "ui/ 全目录复刻必须连同全局 CSS 变量一起拷（--button-outline/--badge-outline/*-border/hover-elevate/--elevate-*），否则 outline/success/warning/elevate 失效",
+ "components": [
+  {
+   "name": "accordion",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "折叠面板",
+   "contract": null
+  },
+  {
+   "name": "alert-dialog",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "确认弹窗",
+   "contract": null
+  },
+  {
+   "name": "alert",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "提示条（新增 success/warning 变体）",
+   "contract": {
+    "base": "relative w-full rounded-lg border px-4 py-3 text-sm grid has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] grid-cols-[0_1fr] items-start",
+    "variants": {
+     "default": "bg-card text-card-foreground",
+     "destructive": "text-destructive bg-card",
+     "success": "bg-success text-success-foreground border-success/50",
+     "warning": "bg-warning text-warning-foreground border-warning/50"
+    },
+    "notes": [
+     "相对标准 shadcn 新增 success/warning 变体",
+     "AlertTitle: col-start-2 line-clamp-1 min-h-4 font-medium",
+     "AlertDescription: text-muted-foreground col-start-2 text-sm"
+    ]
+   }
+  },
+  {
+   "name": "aspect-ratio",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "比例容器",
+   "contract": null
+  },
+  {
+   "name": "avatar",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "头像",
+   "contract": "relative flex size-8 shrink-0 overflow-hidden rounded-full，Fallback bg-muted"
+  },
+  {
+   "name": "badge",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "标签",
+   "contract": {
+    "base": "whitespace-nowrap inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold hover-elevate",
+    "variants": {
+     "default": "border-transparent bg-primary text-primary-foreground shadow-xs",
+     "secondary": "border-transparent bg-secondary text-secondary-foreground",
+     "destructive": "border-transparent bg-destructive text-destructive-foreground shadow-xs",
+     "outline": "border [border-color:var(--badge-outline)] shadow-xs"
+    }
+   }
+  },
+  {
+   "name": "breadcrumb",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "面包屑",
+   "contract": null
+  },
+  {
+   "name": "button",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "按钮（elevate 遮罩 hover）",
+   "contract": {
+    "base": "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium focus-visible:ring-1 focus-visible:ring-ring disabled:opacity-50 hover-elevate active-elevate-2",
+    "variants": {
+     "default": "bg-primary text-primary-foreground border border-primary-border",
+     "destructive": "bg-destructive text-destructive-foreground border border-destructive-border",
+     "outline": "border [border-color:var(--button-outline)] shadow-xs active:shadow-none",
+     "secondary": "bg-secondary text-secondary-foreground border border-secondary-border",
+     "ghost": "border border-transparent",
+     "link": "text-primary underline-offset-4 hover:underline"
+    },
+    "sizes": {
+     "default": "min-h-9 px-4 py-2",
+     "sm": "min-h-8 rounded-md px-3 text-xs",
+     "lg": "min-h-10 rounded-md px-8",
+     "icon": "h-9 w-9"
+    },
+    "notes": [
+     "hover 禁写 hover:bg-*，规范是 elevate 遮罩（::after + --elevate-1/2）",
+     "全局按钮 hover translateY(-1px) + 0.18s 过渡",
+     "自定义色必须配对前景色 bg-primary text-primary-foreground",
+     "高度用 min-h 大内容可撑开",
+     "支持 asChild（Radix Slot）"
+    ]
+   }
+  },
+  {
+   "name": "button-group",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "按钮组",
+   "contract": null
+  },
+  {
+   "name": "calendar",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "日历",
+   "contract": null
+  },
+  {
+   "name": "card",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "卡片（rounded-xl 12px）",
+   "contract": {
+    "classes": {
+     "Card": "rounded-xl border bg-card border-card-border text-card-foreground shadow-sm",
+     "CardHeader": "flex flex-col space-y-1.5 p-6",
+     "CardTitle": "text-2xl font-semibold leading-none tracking-tight",
+     "CardDescription": "text-sm text-muted-foreground",
+     "CardContent": "p-6 pt-0",
+     "CardFooter": "flex items-center p-6 pt-0"
+    },
+    "notes": [
+     "圆角 rounded-xl=12px，专用 --card-border 边框变量",
+     "业务 KPI 卡变体（dashboard）: rounded-xl border-[#e2e8f0] bg-white shadow-[0_2px_8px_rgba(0,0,0,0.03)] hover:shadow-md，内容 flex items-center gap-3 p-5，图标块 h-10 w-10 rounded-lg，数值 text-xl font-bold tabular-nums，danger 红 #ef2c2c",
+     "TONE 色板：blue bg-[#2563eb]/10 text-[#2563eb]；orange #f97316；red #ef2c2c；green #10b981（同构 /10 底）"
+    ]
+   }
+  },
+  {
+   "name": "carousel",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "轮播",
+   "contract": null
+  },
+  {
+   "name": "chart",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "Recharts 图表容器（项目未用于业务）",
+   "contract": "Recharts 版 ChartContainer/ChartTooltip/ChartLegend + ChartConfig（注入 style 生成 [data-chart=id] 变量）——本项目业务图未用它，用 charts/ 直连 ECharts"
+  },
+  {
+   "name": "checkbox",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "复选（三态）",
+   "contract": "size-4 rounded-[4px]，扩展 indeterminate（三态 MinusIcon）"
+  },
+  {
+   "name": "collapsible",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "折叠",
+   "contract": null
+  },
+  {
+   "name": "command",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "命令面板",
+   "contract": null
+  },
+  {
+   "name": "context-menu",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "右键菜单",
+   "contract": null
+  },
+  {
+   "name": "dialog",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "对话框（默认右上角 X）",
+   "contract": {
+    "content": "fixed top-[50%] left-[50%] z-50 grid gap-4 rounded-lg border p-6 shadow-lg duration-200 max-w-lg",
+    "overlay": "fixed inset-0 z-50 bg-black/50",
+    "header": "flex flex-col gap-2 text-center sm:text-left",
+    "footer": "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
+    "title": "text-lg leading-none font-semibold",
+    "notes": [
+     "默认自带右上角 X（showCloseButton=true），禁止内容区重复自绘关闭钮",
+     "表单弹窗统一 sm:max-w-md（RoleFormDialog sm:max-w-lg；PointsDialog max-w-2xl）",
+     "IOServer 设值编辑弹窗 600px"
+    ]
+   }
+  },
+  {
+   "name": "drawer",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "抽屉",
+   "contract": null
+  },
+  {
+   "name": "dropdown-menu",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "下拉菜单",
+   "contract": null
+  },
+  {
+   "name": "empty",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "空态六件套（平台定制）",
+   "contract": "六件套 Empty/EmptyHeader/EmptyMedia/EmptyTitle/EmptyDescription/EmptyContent；容器 flex flex-col items-center rounded-lg border-dashed p-6 md:p-12 text-center；Media bg-muted size-10 rounded-lg；标题 text-base font-medium tracking-tight"
+  },
+  {
+   "name": "field",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "表单字段",
+   "contract": null
+  },
+  {
+   "name": "form",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "表单",
+   "contract": null
+  },
+  {
+   "name": "hover-card",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "hover 卡片",
+   "contract": null
+  },
+  {
+   "name": "image",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "图片（sizes/alt 强约束）",
+   "contract": "响应式必传 sizes；固定尺寸必传 number width；必传有意义 alt"
+  },
+  {
+   "name": "input",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "输入框（hover 换边框 + 3px ring）",
+   "contract": {
+    "base": "border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-sm outline-none transition-[color,box-shadow] placeholder:text-muted-foreground disabled:opacity-50",
+    "interactions": "enabled:hover:border-ring focus-visible:border-ring focus-visible:ring-ring/20 focus-visible:ring-[3px] aria-invalid:border-destructive",
+    "notes": [
+     "hover 也换边框色（enabled:hover:border-ring），聚焦 3px ring",
+     "暗色页变体：bg-slate-900 border-slate-700"
+    ],
+    "zone_rules": {
+     "main": "圆角 8px（rounded-md）、筛选高 36、字号 14px、选中品牌蓝 lab(44.0605 29.0279 -86.0352)",
+     "ioserver": "全直角 0px、高 32、字号 12px、选中 #1677FF rgb(22,119,255)、placeholder 式「请选择设备状态…」"
+    }
+   }
+  },
+  {
+   "name": "input-group",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "输入组",
+   "contract": null
+  },
+  {
+   "name": "input-otp",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "OTP 输入",
+   "contract": null
+  },
+  {
+   "name": "item",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "列表项",
+   "contract": null
+  },
+  {
+   "name": "kbd",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "键帽",
+   "contract": null
+  },
+  {
+   "name": "label",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "标签（font-normal）",
+   "contract": "flex items-center gap-2 text-sm leading-none font-normal select-none（font-normal 非标准加粗）"
+  },
+  {
+   "name": "markdown",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "MD 渲染",
+   "contract": null
+  },
+  {
+   "name": "menubar",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "菜单栏",
+   "contract": null
+  },
+  {
+   "name": "native-select",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "原生下拉",
+   "contract": null
+  },
+  {
+   "name": "navigation-menu",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "导航菜单",
+   "contract": null
+  },
+  {
+   "name": "pagination",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "分页",
+   "contract": null
+  },
+  {
+   "name": "popover",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "气泡",
+   "contract": null
+  },
+  {
+   "name": "progress",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "进度条",
+   "contract": null
+  },
+  {
+   "name": "radio-group",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "单选组",
+   "contract": null
+  },
+  {
+   "name": "resizable",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "可调尺寸面板",
+   "contract": null
+  },
+  {
+   "name": "scroll-area",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "滚动区",
+   "contract": null
+  },
+  {
+   "name": "select",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "下拉选择（空值哨兵 + 箭头旋转 180°）",
+   "contract": {
+    "trigger": "h-9（sm h-8）rounded-md border px-3 text-sm data-[placeholder]:text-muted-foreground",
+    "empty_sentinel": "__dont__use__this__empty__value__（业务层可放心用 \"\" 作「全部」选项值）",
+    "item": "rounded-sm py-1.5 pl-2 pr-8 text-sm 选中 text-primary，右测 CheckIcon size-4",
+    "content": "position=\"popper\" align=\"center\" bg-popover rounded-md border shadow-md",
+    "notes": [
+     "展开箭头旋转 180°（data-[state=open]:[&_svg]:rotate-180）——与有人云 el-select 一致",
+     "禁用项拦截 onClick/onPointerDown"
+    ],
+    "zone_rules": {
+     "main": "圆角 8px、默认显示默认选项文本（「全部」「全部楼层」）、面板选项高 32px 14px 字",
+     "ioserver": "全直角 0px、placeholder 式缺省（「请选择设备状态…」）、面板选项高 34px 12px 字、面板宽 ≈ 触发器宽 +14~18px、阴影 none 底色透明"
+    }
+   }
+  },
+  {
+   "name": "separator",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "分隔线",
+   "contract": "bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=vertical]:w-px"
+  },
+  {
+   "name": "sheet",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "侧滑抽屉",
+   "contract": null
+  },
+  {
+   "name": "sidebar",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "完整侧栏体系（727 行）",
+   "contract": null
+  },
+  {
+   "name": "skeleton",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "骨架屏",
+   "contract": "bg-accent animate-pulse rounded-md"
+  },
+  {
+   "name": "slider",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "滑杆",
+   "contract": null
+  },
+  {
+   "name": "sonner",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "toast",
+   "contract": null
+  },
+  {
+   "name": "spinner",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "加载图标",
+   "contract": "Loader2Icon + role=status aria-label=Loading，size-4 animate-spin"
+  },
+  {
+   "name": "switch",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "开关",
+   "contract": "轨道 inline-flex h-[1.15rem] w-8 rounded-full；checked bg-primary；thumb size-4 rounded-full translate-x-[calc(100%-2px)]"
+  },
+  {
+   "name": "table",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "表格（自动 overflow-x-auto 容器）",
+   "contract": {
+    "container": "data-slot=\"table-container\" relative w-full overflow-x-auto",
+    "table": "w-full caption-bottom text-sm",
+    "head": "text-foreground h-10 px-2 text-left align-middle font-medium whitespace-nowrap",
+    "cell": "p-2 align-middle whitespace-nowrap",
+    "row": "hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors",
+    "footer": "bg-muted/50 border-t font-medium",
+    "notes": [
+     "业务表头（列表页）：border-b bg-muted/50 text-left text-xs text-muted-foreground（th p-2）",
+     "固定列滚动阴影：.fixed-cell position sticky + data-scrolled=true 时 8px 左渐变",
+     "行高按页：密集表 37px / 数据表 46~49px",
+     "行 hover：主平台 oklab(0.969998 0 0 / 0.5)；org-scan 页例外 rgb(245,247,250)"
+    ]
+   }
+  },
+  {
+   "name": "tabs",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "标签页",
+   "contract": {
+    "list": "bg-muted text-muted-foreground inline-flex h-9 w-fit items-center justify-center rounded-lg p-[3px]",
+    "trigger": "data-[state=active]:bg-background inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm data-[state=active]:font-medium data-[state=active]:shadow-sm",
+    "notes": [
+     "Tab 选中两种：白底高亮（realtime/energy）或品牌蓝实底（logs）",
+     "无数据源 Tab 置灰 + hover 提示「请在有人云平台查看」"
+    ]
+   }
+  },
+  {
+   "name": "textarea",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "多行输入",
+   "contract": null
+  },
+  {
+   "name": "toggle",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "切换按钮",
+   "contract": null
+  },
+  {
+   "name": "toggle-group",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "切换组",
+   "contract": null
+  },
+  {
+   "name": "tooltip",
+   "zone": "both",
+   "section": "ui/",
+   "purpose": "提示（深底白字反转）",
+   "contract": "深底白字反转 bg-foreground text-background rounded-md px-3 py-1.5 text-xs shadow-md + 箭头 size-2.5 rotate-45 rounded-[2px]，delayDuration=0"
+  },
+  {
+   "name": "icons",
+   "zone": "both",
+   "section": "ui/icons/",
+   "purpose": "23 个 File*ColorfulIcon 彩色文件类型图标（viewBox 0 0 24 24，品牌色硬编码，如 PDF #F54A45/#C02A26）；功能图标一律 lucide-react 禁用 Emoji",
+   "contract": null
+  },
+  {
+   "name": "UserSelect",
+   "zone": "main",
+   "section": "business-ui/",
+   "purpose": "表单人员选择（仅 ID 模式，单 string|null / 多 string[]；triggerType button|search|custom；placeholder 请选择；UI 展示头像姓名但只回 user_id）",
+   "contract": null
+  },
+  {
+   "name": "DepartmentSelect",
+   "zone": "main",
+   "section": "business-ui/",
+   "purpose": "表单部门选择（对象模式 Department={id,name}；placeholder 请选择部门）",
+   "contract": null
+  },
+  {
+   "name": "ChatSelect",
+   "zone": "main",
+   "section": "business-ui/",
+   "purpose": "表单群组选择（ID=飞书 chatID；Chat={id,name,avatar}）",
+   "contract": null
+  },
+  {
+   "name": "UserDisplay",
+   "zone": "main",
+   "section": "business-ui/",
+   "purpose": "用户头像+姓名展示（value=string[] user_id；size small|medium|large；点击弹 UserProfile；禁止直接文本展示 user_id）",
+   "contract": null
+  },
+  {
+   "name": "UserProfile",
+   "zone": "main",
+   "section": "business-ui/",
+   "purpose": "用户详情卡片（仅 value prop；简单/飞书官方双模式）",
+   "contract": null
+  },
+  {
+   "name": "form-fields",
+   "zone": "main",
+   "section": "business-ui/form/",
+   "purpose": "input/select/checkbox/radio/switch/textarea-field + FieldLayout 表单字段族",
+   "contract": null
+  },
+  {
+   "name": "EntityCombobox",
+   "zone": "main",
+   "section": "business-ui/",
+   "purpose": "实体搜索下拉（附 use-fetch-data/use-infinite-scroll）",
+   "contract": null
+  },
+  {
+   "name": "PowerTempChart",
+   "zone": "main",
+   "section": "charts/",
+   "purpose": "功率柱(barMaxWidth:8)+回水温度线(yAxisIndex:1 smooth)双轴图；容器 h-72 w-full；grid {left:48,right:48,top:36,bottom:28}；temp 缺省整条 series 不渲染",
+   "contract": null
+  },
+  {
+   "name": "StatusDonut",
+   "zone": "main",
+   "section": "charts/",
+   "purpose": "设备状态三色环图（radius 55%~80%，legend bottom:0）；配色：正常 hsl(142 71% 45%) / 预警 hsl(38 92% 50%) / 报警 hsl(0 72% 51%)",
+   "contract": null
+  },
+  {
+   "name": "BindingSvg",
+   "zone": "main",
+   "section": "schematic/",
+   "purpose": "冷站工艺图（SVG 管道双层描边 + 测点绑定，详见 get_page_pattern process-diagram）",
+   "contract": null
+  },
+  {
+   "name": "Layout-legacy",
+   "zone": "main",
+   "section": "src/",
+   "purpose": "旧版暗色根骨架（bg-[#0a1120] cyan 三路由）——已被 AppShell 取代，勿用于复刻（DESIGN.md Don't 明令）",
+   "contract": null
+  }
+ ]
+}

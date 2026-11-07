@@ -1,0 +1,3 @@
+# Shell 脚本必须 LF：工作区若带 CRLF，bash 执行会报 $'\r': command not found
+# 仅约束 scripts/ 下的运维脚本（仓内既有 3 个 sh 为 CRLF，暂不整体规范化，避免一次性大 diff）
+/scripts/*.sh text eol=lf

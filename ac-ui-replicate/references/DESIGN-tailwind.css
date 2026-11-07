@@ -1,0 +1,245 @@
+/* ============================================================
+ * ac-ui DESIGN-tailwind.css — Tailwind v4 token CSS
+ * 来源：妙搭空调平台 tailwind-theme.css 原文 + 实测补充
+ * 用法：@import "DESIGN-tailwind.css";（配合 Tailwind v4）
+ * 规范文档：同目录 DESIGN.md
+ * ============================================================ */
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  /* ---------- 字体 ---------- */
+  --font-sans: 'LarkHackSafariFont','LarkEmojiFont','LarkChineseQuote','-apple-system','BlinkMacSystemFont','Helvetica Neue','Tahoma','PingFang SC','Microsoft Yahei','Arial','Hiragino Sans GB','sans-serif','Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol','Noto Color Emoji';
+  --font-mono: Source Code Pro, monospace;
+
+  /* ---------- 圆角 ---------- */
+  --radius: 0.625rem;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 2px);
+
+  /* ---------- 间距 / 字距 ---------- */
+  --spacing: 0.25rem;
+  --tracking-normal: 0em;
+
+  /* ---------- 阴影（token 原文） ---------- */
+  --shadow-2xs: 0px 2px 12px 0px hsl(0 0% 0% / 0.01);
+  --shadow-xs: 0px 2px 12px 0px hsl(0 0% 0% / 0.01);
+  --shadow-sm: 0px 2px 12px 0px hsl(0 0% 0% / 0.02), 0px 1px 2px -1px hsl(0 0% 0% / 0.02);
+  --shadow: 0px 2px 12px 0px hsl(0 0% 0% / 0.02), 0px 1px 2px -1px hsl(0 0% 0% / 0.02);
+  --shadow-md: 0px 2px 12px 0px hsl(0 0% 0% / 0.02), 0px 2px 4px -1px hsl(0 0% 0% / 0.02);
+  --shadow-lg: 0px 2px 12px 0px hsl(0 0% 0% / 0.02), 0px 4px 6px -1px hsl(0 0% 0% / 0.02);
+  --shadow-xl: 0px 2px 12px 0px hsl(0 0% 0% / 0.02), 0px 8px 10px -1px hsl(0 0% 0% / 0.02);
+  --shadow-2xl: 0px 2px 12px 0px hsl(0 0% 0% / 0.05);
+
+  /* ---------- 钉回经典 slate hex（Tailwind v4 OKLCH 派生偏暗，必须钉回） ---------- */
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+
+  /* ---------- 图表色板 ---------- */
+  --color-chart-1: oklch(0.87 0 0);
+  --color-chart-2: oklch(0.556 0 0);
+  --color-chart-3: oklch(0.439 0 0);
+  --color-chart-4: oklch(0.371 0 0);
+  --color-chart-5: oklch(0.269 0 0);
+}
+
+/* ============================================================
+ * 浅色 :root 语义 token
+ * ============================================================ */
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --card-border: oklch(0.922 0 0);
+
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+
+  --primary: oklch(0.546 0.245 262.881);
+  --primary-foreground: oklch(0.985 0 0);
+
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+
+  --info: hsl(221 83% 53%);
+  --info-foreground: hsl(230 100% 98%);
+  --success: hsl(130 54% 42%);
+  --success-foreground: hsl(115 77% 97%);
+  --warning: hsl(26 90% 49%);
+  --warning-foreground: hsl(33 100% 96%);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: hsl(0 0% 100%);
+
+  /* cyan 品牌强调专用（工艺图流动/实时链路/选中描边）——不动 --accent */
+  --brand-accent: hsl(190 95% 36%);
+  --brand-accent-strong: hsl(187 91% 43%);
+
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.546 0.245 262.881);
+
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.546 0.245 262.881);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.546 0.245 262.881);
+
+  /* 派生边框（回退值） */
+  --primary-border: oklch(0.546 0.245 262.881 / 0.7);
+  --secondary-border: oklch(0.97 0 0 / 0.8);
+  --destructive-border: oklch(0.577 0.245 27.325 / 0.7);
+  --accent-border: oklch(0.922 0 0 / 0.8);
+  --muted-border: oklch(0.922 0 0 / 0.8);
+
+  /* 按钮/徽章/分层遮罩 */
+  --button-outline: rgba(0, 0, 0, 0.10);
+  --badge-outline: rgba(0, 0, 0, 0.05);
+  --elevate-1: rgba(0, 0, 0, 0.03);
+  --elevate-2: rgba(0, 0, 0, 0.08);
+}
+
+/* 支持 hsl(from …) 的浏览器：主色边框由主色派生（intensity = -8%） */
+@supports (color: hsl(from red h s calc(l + 0%))) {
+  :root {
+    --opaque-button-border-intensity: -8%;
+    --primary-border: hsl(from var(--primary) h s calc(l + var(--opaque-button-border-intensity, 0%)));
+    --secondary-border: hsl(from var(--secondary) h s calc(l + var(--opaque-button-border-intensity, 0%)));
+    --destructive-border: hsl(from var(--destructive) h s calc(l + var(--opaque-button-border-intensity, 0%)));
+    --accent-border: hsl(from var(--accent) h s calc(l + var(--opaque-button-border-intensity, 0%)));
+    --muted-border: hsl(from var(--muted) h s calc(l + var(--opaque-button-border-intensity, 0%)));
+  }
+}
+
+/* ============================================================
+ * 深色 .dark（info/success/warning 不覆写，沿用浅色）
+ * ============================================================ */
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --card-border: oklch(1 0 0 / 10%);
+
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+
+  --destructive: oklch(0.704 0.191 22.216);
+  --destructive-foreground: hsl(0 0% 100%);
+
+  --brand-accent: hsl(187 91% 43%);
+  --brand-accent-strong: hsl(190 95% 50%);
+
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+/* ============================================================
+ * 备选主色（<html data-theme-color="…">；blue 为默认不写）
+ * ============================================================ */
+:root[data-theme-color='violet'] { --primary: hsl(262 83% 58%); --ring: hsl(262 83% 58%); }
+:root[data-theme-color='green']  { --primary: hsl(142 71% 45%); --ring: hsl(142 71% 45%); }
+:root[data-theme-color='orange'] { --primary: hsl(24 95% 53%);  --ring: hsl(24 95% 53%); }
+:root[data-theme-color='rose']   { --primary: hsl(350 89% 60%); --ring: hsl(350 89% 60%); }
+
+/* ============================================================
+ * 全局交互契约
+ * ============================================================ */
+
+/* 按钮 hover 上浮 + 0.18s 四属性过渡 */
+button:not(:disabled),
+[role="button"]:not(:disabled) {
+  transition: transform 0.18s, background-color 0.18s, color 0.18s, box-shadow 0.18s;
+}
+button:not(:disabled):hover,
+[role="button"]:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
+/* 表格固定列滚动阴影 */
+.fixed-cell { position: sticky; }
+[data-slot="table-container"][data-scrolled="true"] .fixed-cell::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  background: linear-gradient(to left, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0));
+}
+
+/* elevate 分层遮罩系统（按钮/徽章 hover 规范实现，替代 hover:bg-*） */
+@layer utilities {
+  .toggle-elevate.toggle-elevated::before { background: var(--elevate-2); }
+  .hover-elevate:hover::after { background: var(--elevate-1); }
+  .hover-elevate-2:hover::after { background: var(--elevate-2); }
+  .active-elevate-2:active::after { background: var(--elevate-2); }
+  .hover-elevate.border:hover::after,
+  .hover-elevate-2.border:hover::after,
+  .active-elevate-2.border:active::after { inset: -1px; }
+  /* 逃生舱 */
+  .no-default-hover-elevate:hover::after { background: transparent; }
+  .no-default-active-elevate:active::after { background: transparent; }
+}
+
+/* 搜索框取消按钮 / contenteditable 占位 */
+input[type="search"]::-webkit-search-cancel-button { display: none; }
+[contenteditable][data-placeholder]:empty::before {
+  content: attr(data-placeholder);
+  color: var(--muted-foreground);
+}
+
+/* ---------- 暗色绝对值页工具类（monitor/analysis/gate/login/接入管理） ---------- */
+@layer utilities {
+  .ac-dark-page   { background: #0a1120; }
+  .ac-kpi-card    { background: #0f1b31; border-color: oklch(0.269 0 0 / 1); }  /* border-slate-800 同源层级 */
+  .ac-content-card{ background: #0d1728; }
+}
+
+/* ---------- 工艺图动画（BindingSvg / Schematic 契约） ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .schem-blink, .schem-flow, .pipe-anim, .alarm-pulse { animation: none !important; }
+}
+.schem-blink { animation: schem-blink 1s infinite; }
+@keyframes schem-blink { 50% { opacity: 0.35; } }
+.schem-flow { animation: schem-flow 1.2s linear infinite; }
+@keyframes schem-flow { to { stroke-dashoffset: -40; } }
+.pipe-anim { stroke-dasharray: 10 14; animation: pipe-flow 1.2s linear infinite; }
+@keyframes pipe-flow { to { stroke-dashoffset: -24; } }
+.alarm-pulse { animation: alarm-blink 1s ease-in-out infinite; }
+@keyframes alarm-blink { 50% { opacity: 0.25; } }

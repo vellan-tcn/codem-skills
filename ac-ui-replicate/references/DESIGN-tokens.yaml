@@ -1,0 +1,190 @@
+# ============================================================
+# ac-ui 设计 token 单源（Tailwind v4 / shadcn 语义变量体系）
+# 由 DESIGN.md 头部 YAML 色表拆出（2026-09-21 评审 M1）。
+# 本文件为色值/字号/圆角/间距/阴影/动效的唯一维护点；
+# 机器可读结构化版见同目录 tokens.json（未来三端生成用数据源）。
+# ============================================================
+meta:
+  name: ac-ui
+  product: 空调节能监控平台（水冷中央空调）
+  stack: React + Tailwind v4 + shadcn/ui + lucide-react + ECharts
+  theme:
+    mode: light-default          # next-themes attribute="class" defaultTheme="light"
+    color_switchable: true       # data-theme-color: blue|violet|green|orange|rose
+    dual_scheme: true            # 主平台区=亮色语义 token；监控/分析/登录/接入管理=暗色绝对色值
+
+colors:
+  # --- 浅色 :root（语义 token，oklch 原文）---
+  light:
+    background: oklch(1 0 0)             # 纯白
+    foreground: oklch(0.145 0 0)         # 近黑正文
+    card: oklch(1 0 0)
+    card-foreground: oklch(0.145 0 0)
+    popover: oklch(1 0 0)
+    popover-foreground: oklch(0.145 0 0)
+    primary: oklch(0.546 0.245 262.881)  # 品牌蓝（≈ lab(44.06 29.03 -86.04) / rgb(0,102,255) 系）
+    primary-foreground: oklch(0.985 0 0)
+    secondary: oklch(0.97 0 0)
+    secondary-foreground: oklch(0.205 0 0)
+    muted: oklch(0.97 0 0)
+    muted-foreground: oklch(0.556 0 0)   # ≈ #6E6E6E 中灰次要文字
+    accent: oklch(0.97 0 0)
+    accent-foreground: oklch(0.205 0 0)
+    destructive: oklch(0.577 0.245 27.325)
+    destructive-foreground: hsl(0 0% 100%)
+    success: hsl(130 54% 42%)
+    success-foreground: hsl(115 77% 97%)
+    warning: hsl(26 90% 49%)
+    warning-foreground: hsl(33 100% 96%)
+    info: hsl(221 83% 53%)
+    info-foreground: hsl(230 100% 98%)
+    brand-accent: hsl(190 95% 36%)       # 工艺图流动/实时链路/选中描边专用 cyan
+    brand-accent-strong: hsl(187 91% 43%)
+    border: oklch(0.922 0 0)             # ≈ #E7E7E7 / rgb(231,233,241) 浅灰边框
+    input: oklch(0.922 0 0)
+    ring: oklch(0.546 0.245 262.881)
+    chart-1: oklch(0.87 0 0)
+    chart-2: oklch(0.556 0 0)
+    chart-3: oklch(0.439 0 0)
+    chart-4: oklch(0.371 0 0)
+    chart-5: oklch(0.269 0 0)
+  # --- 深色 .dark ---
+  dark:
+    background: oklch(0.145 0 0)
+    foreground: oklch(0.985 0 0)
+    card: oklch(0.205 0 0)
+    card-foreground: oklch(0.985 0 0)
+    popover: oklch(0.205 0 0)
+    primary: oklch(0.922 0 0)
+    primary-foreground: oklch(0.205 0 0)
+    secondary: oklch(0.269 0 0)
+    muted-foreground: oklch(0.708 0 0)
+    destructive: oklch(0.704 0.191 22.216)
+    border: oklch(1 0 0 / 10%)
+    input: oklch(1 0 0 / 15%)
+    ring: oklch(0.556 0 0)
+    note: 深色不覆写 info/success/warning，沿用浅色值
+  # --- 暗色绝对色值页（monitor/analysis/gate/login/接入管理，独立于 token 体系）---
+  dark_page:
+    page_bg: "#0a1120"        # 页底
+    kpi_card_bg: "#0f1b31"    # KPI 卡
+    content_card_bg: "#0d1728" # 内容卡/组态卡
+    card_border: border-slate-800
+    input: bg-slate-900 border-slate-700
+    primary_button: bg-cyan-600 hover:bg-cyan-500
+    text: text-slate-100 / text-slate-400 / text-slate-500
+    kpi_accent: emerald-300 / cyan-300 / sky-300 / amber-300
+  # --- 备选主色（:root[data-theme-color='…']）---
+  theme_colors:
+    violet: hsl(262 83% 58%)
+    green: hsl(142 71% 45%)
+    orange: hsl(24 95% 53%)
+    rose: hsl(350 89% 60%)
+  # --- 实测 computed 色（04-interactions，lab() 原样）---
+  measured:
+    ep_blue: rgb(22, 119, 255)             # #1677FF，IOServer 区选中态
+    brand_blue_computed: lab(44.0605 29.0279 -86.0352)
+    danger_red: lab(48.4493 77.4328 61.5452)
+    text_near_black: lab(7.78201 0 0)
+    text_mid_gray: lab(48.496 0 0)          # ≈ #6E6E6E
+    secondary_text: rgb(96, 98, 102)        # #606266 el 灰
+    border_gray: rgb(231, 233, 241)         # #E7E7F1
+    disabled_gray: rgb(192, 196, 204)       # #C0C4CC
+    hover_gray: oklab(0.969998 0 0 / 0.5)   # 表格行 hover
+    el_hover: rgb(245, 247, 250)            # #F5F7FA，org-scan 页专用
+    online_green_text: lab(55.0481 -49.9246 15.93)
+    online_green_bg: oklab(0.695996 -0.162107 0.0511875 / 0.15)  # 绿 15% 透明底
+  # --- 图表/工艺图语义色（HSL 原文）---
+  chart_semantic:
+    normal_success: hsl(142 71% 45%)
+    warning: hsl(38 92% 50%)
+    alarm_danger: hsl(0 72% 51%)
+    pipe_chw_outer: hsl(215 20% 80%)
+    pipe_chw_inner: hsl(201 94% 44%)
+    pipe_cw_outer: hsl(215 20% 80%)
+    pipe_cw_inner: hsl(24 94% 55%)
+    dark_chart_series: ["#22d3ee", "#34d399", "#fbbf24", "#a78bfa", "#f472b6"]  # TrendQueryPanel
+    dark_chart_axis: "#64748b"
+    dark_chart_legend: "#94a3b8"
+    energy_bar: hsl(199 89% 48%)
+
+typography:
+  font_sans: "'LarkHackSafariFont','LarkEmojiFont','LarkChineseQuote','-apple-system','BlinkMacSystemFont','Helvetica Neue','Tahoma','PingFang SC','Microsoft Yahei','Arial','Hiragino Sans GB','sans-serif','Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol','Noto Color Emoji'"
+  font_mono: "Source Code Pro, monospace"
+  sizes:            # 页面实际使用字号
+    page_title: 18px       # text-lg font-semibold（详情页 h1）
+    dark_page_title: 20px  # text-xl（analysis/monitor）
+    kpi_value: 20px        # text-xl font-bold tabular-nums
+    dark_kpi_value: 24px   # text-2xl font-semibold tabular-nums
+    body: 14px             # text-sm（表格/表单/菜单叶子）
+    table_header: 12px     # text-xs text-muted-foreground
+    caption: 12px          # text-xs（标签/单位/提示）
+    sidebar_group: 11px    # text-[11px] bold uppercase tracking-wider
+    sidebar_sub: 10px      # text-[10px]（副题）
+    process_value: 15px    # 工艺图数值 text-[15px] font-semibold
+    process_label: 13px    # 工艺图标签 text-[13px]
+  slate_pinned:            # Tailwind v4 OKLCH 偏暗，必须钉回 hex
+    slate-500: "#64748b"
+    slate-600: "#475569"
+    slate-700: "#334155"
+
+radius:
+  base: 0.625rem          # 10px --radius
+  sm: calc(var(--radius) - 4px)   # 6px（SelectItem/选项）
+  md: calc(var(--radius) - 2px)   # 8px（按钮/输入框/表格容器）
+  lg: var(--radius)               # 10px（Dialog/Alert/TabsList）
+  xl: calc(var(--radius) + 2px)   # 12px（Card/账号下拉/Logo）
+  exceptions:                       # IOServer 区复刻有人云 → 全直角
+    ioserver_control: 0px           # 输入框/下拉/分页条数/页码按钮
+    ioserver_panel: 0px             # 下拉面板
+    channel_card: 4px               # 通道卡片
+    pagination_jump: 10px           # 前往页输入框
+    breadcrumb_pill: 9999px         # rounded-full
+
+spacing:
+  unit: 0.25rem           # --spacing 4px
+  page_gap: 16px          # space-y-4 / gap-4
+  list_page_gap: 12px     # space-y-3
+  card_padding: 24px      # CardHeader/CardContent p-6；业务 KPI 卡 p-5/p-4
+  table_cell: 8px         # th/td p-2
+  sidebar_expanded: 256px # w-64
+  sidebar_collapsed: 80px # w-20
+  topbar_height: 56px     # h-14
+  content_padding: 12px mobile / 20px md+  # p-3 md:p-5
+
+shadows:
+  sidebar: "inset -1px 0 0 0 #E2E8F0D1, 12px 0 32px #0F172A0D"   # 双写：内侧 1px 高光 + 外投影
+  logo: "0 10px 22px rgba(37,99,235,0.18)"
+  kpi_card: "0 2px 8px rgba(0,0,0,0.03)"
+  token_scale:
+    "2xs": "0px 2px 12px 0px hsl(0 0% 0% / 0.01)"
+    xs: "0px 2px 12px 0px hsl(0 0% 0% / 0.01)"
+    sm: "0px 2px 12px 0px hsl(0 0% 0% / 0.02), 0px 1px 2px -1px hsl(0 0% 0% / 0.02)"
+    md: "0px 2px 12px 0px hsl(0 0% 0% / 0.02), 0px 2px 4px -1px hsl(0 0% 0% / 0.02)"
+    lg: "0px 2px 12px 0px hsl(0 0% 0% / 0.02), 0px 4px 6px -1px hsl(0 0% 0% / 0.02)"
+    xl: "0px 2px 12px 0px hsl(0 0% 0% / 0.02), 0px 8px 10px -1px hsl(0 0% 0% / 0.02)"
+    "2xl": "0px 2px 12px 0px hsl(0 0% 0% / 0.05)"
+  derived:
+    button_outline: rgba(0,0,0,.10)
+    badge_outline: rgba(0,0,0,.05)
+    elevate_1: rgba(0,0,0,.03)   # hover 遮罩
+    elevate_2: rgba(0,0,0,.08)   # active 遮罩
+
+motion:
+  button_hover: "transition transform/background-color/color/box-shadow 0.18s; hover: translateY(-1px)"
+  pipe_flow: "stroke-dasharray 10 14; animation pipe-flow 1.2s linear infinite (dashoffset → -24)"
+  schem_flow: "strokeDasharray 12 8; 1.2s; dashoffset → -40"
+  blink: "1s infinite, 50% opacity .35（.schem-blink / .alarm-pulse 50% opacity .25）"
+  flash: "值变化 animate-pulse，8s 至多一次"
+  reduced_motion: "@media (prefers-reduced-motion: reduce) 禁用 blink/flow"
+
+status_words:   # 全站状态文案映射，照抄不自拟
+  device_status: { normal: 正常, warning: 预警, alarm: 报警 }
+  alarm_status: { active: 未确认, acked: 已确认, resolved: 已处置 }
+  alarm_level: [紧急, 重要, 一般]
+  level_bar: { 紧急: bg-red-500, 重要: bg-amber-500, 一般: bg-sky-500, default: bg-slate-400 }
+  status_badge:
+    active: bg-red-500/15 text-red-500
+    acked: bg-amber-500/15 text-amber-500
+    resolved: bg-emerald-500/15 text-emerald-600
+  online_dot: { normal: bg-emerald-500, warning: bg-amber-500, alarm: bg-red-500, offline: bg-zinc-400 }
