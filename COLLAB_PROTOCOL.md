@@ -103,3 +103,59 @@ PR 建立后（或用户把 PR 链接发进任意对话后），对话中的 age
 ## 八、版本纪律（不变）
 
 合并后各机器开工前仍执行 SKILL.md 的「版本硬校验」：`git pull` + 核对 `report-kit-builder/VERSION`，旧版 agent 不许动手复刻。
+
+## 九、敏感信息门禁（2026-11-07 用户定稿：公开仓零泄露）
+
+本仓库是 **public**，历史上曾因真实客户名 / 内部飞书站点 / 应用 ID / 项目代号进 commit 导致泄露，最终只能删库重建。**一旦进 commit，改文件清不掉**——GitHub 上旧 blob 仍可按 SHA 访问，PR 更无法删除。因此设强制门禁：
+
+### 9.1 门禁工具
+
+`scripts/check_sensitive.py`（已 `chmod +x`，能识别中文）：
+- `python3 scripts/check_sensitive.py` —— 扫工作区已跟踪文件
+- `python3 scripts/check_sensitive.py --staged` —— 扫暂存区（pre-commit 调）
+- `python3 scripts/check_sensitive.py --message FILE` —— 扫提交信息（commit-msg 调）
+- `python3 scripts/check_sensitive.py --history` —— 扫全部历史（blob + 提交信息）
+
+词表来源（合并使用，命中任一类即拦截）：
+1. 私有词表 `~/.codem/.sanitize_map.json` 的 `gate_words`（**不入库**，含具体客户名等；CI 上缺文件属预期，仅退化为通用形态扫描）
+2. `SENSITIVE_WORDS` 环境变量（逗号分隔临时词）
+3. `--words FILE`（每行一词）
+4. 内置 `GENERIC`：内部飞书域名 `.feishuapp.com` / `.feishu.link`、妙搭应用 ID `app_<12位+>`、数据库 schema 名 `workspace_<10位+>`（不含任何具体客户信息，可入库）
+
+退出码：0 通过 / 1 命中 / 2 环境错误。
+
+### 9.2 强制钩子（本机必装）
+
+维护机 `~/.codem/skills/.git/hooks/` 下放置 `pre-commit` 与 `commit-msg`，内容分别调用 `--staged` 与 `--message`。脚本首次安装见下方「9.4 安装命令」。**任何 agent 在本仓 commit 前必须确认钩子已生效**；若钩子缺失，agent 须先装再提交，不得绕过。
+
+### 9.3 红线清单（commit / PR / 提交信息 一律禁止出现）
+
+- 真实客户名、项目代号、合同主体（一律以「示例客户」「某商业综合体」等占位，禁止写具体名称）
+- 内部飞书站点地址（`*.feishuapp.com` / `*.feishu.link` 任意子域）
+- 妙搭应用 ID（`app_` 开头的长串）
+- 数据库 schema / 工作区名（`workspace_` 开头）
+- 任何指向具体业务系统的内部 URL、内部仓库名（以 `<内部仓库名>` 占位，禁止写真实代号）
+- 真实人名 / 凭证 / 密钥 / token
+
+### 9.4 安装命令（维护机一次性执行）
+
+```bash
+cd ~/.codem/skills
+# pre-commit
+cat > .git/hooks/pre-commit <<'EOF'
+#!/usr/bin/env bash
+exec python3 "$(git rev-parse --show-toplevel)/scripts/check_sensitive.py" --staged
+EOF
+# commit-msg（参数 $1 是临时信息文件路径）
+cat > .git/hooks/commit-msg <<'EOF'
+#!/usr/bin/env bash
+exec python3 "$(git rev-parse --show-toplevel)/scripts/check_sensitive.py" --message "$1"
+EOF
+chmod +x .git/hooks/pre-commit .git/hooks/commit-msg
+```
+
+### 9.5 命中处置
+
+- **工作区 / 暂存区 / 提交信息命中**：改写为占位符——示例客户名（如「示例商业综合体」）、`<your-domain>`、`<app_id>`，不要直接删除上下文而丢信息。
+- **已经在历史里命中**：改文件没用。要么删库重建（历史全清，本仓 0 star/0 fork 代价极小），要么按本文件流程走；重建前务必 `git bundle create` 全量备份存私有路径（**禁止进任何公开仓**）。
+- 本仓的 `.sanitize_map.json` 属私有，绝不入库、绝不上传。
