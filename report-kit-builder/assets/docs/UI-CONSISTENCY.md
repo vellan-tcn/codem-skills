@@ -219,6 +219,24 @@ rounded-[12px] px-3 py-1.5 shadow-[0_1px_3px_rgba(30_40_70_0.06)]
 - 移动端：隐藏页码数字区，显示「第 x/y 页」小字（`text-xs text-rk-ink-soft md:hidden`）。
 - 页码省略：`prev-gap/next-gap` 显示 `...`，hover 变双箭头（ChevronsLeft/Right）。
 
+### 7.1 分页与口径状态保持（交互红线，2026-11-12 定稿）
+
+**切口径 ≠ 换数据页**：口径开关只影响展示，绝不能把用户从第 6 页打回第 1 页；刷新要回到离开时的样子。五条：
+
+1. **重置页码只认区间**：`useEffect(() => setPage(1), [daily])` 是反模式——口径开关（实际/调整后、还原/原始、任一 checkbox）若触发重新查询，`daily` 必是新数组，页码被打回第 1 页。依赖只写**区间**：`[activeMonth, start, end]`。
+2. **首次挂载跳过重置**：上面这条 effect 挂载时会执行一次 `setPage(1)`，把刚从存储恢复的页码冲掉。用 `firstRangeRef` 跳过首跑。**这是最隐蔽的坑**——代码看着对、日志看不出，只有"刷新后仍是第 1 页"这一个症状。
+3. **刷新保持所见三件套**：
+
+   | 状态 | 存储 | 要点 |
+   |---|---|---|
+   | 当前 tab | URL `?tab=xxx` | 切 tab 时 `navigate(url, { replace: true })`，不产生历史记录；用 `URLSearchParams` 保留其它参数 |
+   | 口径（实际/调整后等） | `sessionStorage` | key 用 `<页面>:adjustedOn` 一类带前缀的名字 |
+   | 页码 + 每页条数 | `sessionStorage` | key `<页面>:page` / `:pageSize`；读回时校验（页码 ≥1、条数在白名单内） |
+
+   用 `sessionStorage` 不用 `localStorage`：关掉标签即复位为默认值，公共终端不残留上一个人的口径和页码。
+4. **默认口径集中定义**：`const DEFAULT_ADJUSTED = false` 这类常量必须同时供 `useState` 初值**和**首屏/首次请求使用——两处各写一个字面量，就会出现"开关显示实际、首屏却是调整后"的错位。
+5. **打印/导出全程透传口径**：`①` 屏幕跳打印页的 URL、`②` 导出 PDF 时拼的 target URL、`③` 打印页内部的口径切换（`reloadToRoute`）——三条分支都要带上全部开关参数（如 `&corr=1`）。漏一条就静默输出另一口径的纸面，且**没有任何报错**。
+
 ## 8. 悬浮提示与弹窗层级
 
 - **自定义 tooltip（非原生 title）**：PC hover、移动端点按；`pointer-events-none absolute z-30 rounded-md bg-rk-ink/95 px-2.5 py-1 text-xs text-white shadow-lg`；多行文案允许换行（`whitespace-normal`）。
@@ -234,5 +252,7 @@ rounded-[12px] px-3 py-1.5 shadow-[0_1px_3px_rgba(30_40_70_0.06)]
 5. **表格**：`table-fixed` 均分列宽？表头吸顶/首列锁定/汇总吸底三锁定是否齐全？移动端是否无横向滚动？
 6. **颜色**：有无裸 hex 绕过 rk-* 令牌？
 7. **端一致性**：390×844 移动 + 1280×800 桌面双视口截图，与基准页逐项对照（防缓存 `?v=N` 二次截图）。
+8. **状态保持**：翻到非首页后切口径/开关、点「实际↔调整后」，页码是否不变？刷新后是否仍停在同一 tab、同一口径、同一页（首行日期一致）？
+9. **口径透传**：屏幕 → 打印预览 → 导出 PDF 三处口径是否一致？逐条检查参数拼接点（跳转 URL / 导出 target / 打印页内切换），有无漏带开关参数。
 
 > 任何页面出现本规范之外的控件新尺寸，先回灌本技能（只增不删），再应用到新页面——不要只在单个项目里自造值。
